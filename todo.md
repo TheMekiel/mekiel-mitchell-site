@@ -5,7 +5,7 @@
 - [x] Add Open Graph + Twitter Card meta tags (og:title, og:description, og:image with absolute URL using published domain mekielsite-j6ghrklh.manus.space, og:url, og:type, twitter:card)
 - [x] Verify tags render and assets are served (curl checks: both 200, correct types/sizes; 7 meta/link tags found)
 - [x] Confirm DEV HANDOFF stubs still untouched (8 markers, 3 REPLACE_WITH_FORM_ID)
-- [ ] Save the current approved checkpoint and deliver the live release
+- [x] Save the approved production checkpoint and deliver the live release
 
 
 # New request: backup, domain, and integrations
@@ -16,10 +16,10 @@
 - [x] Do not overwrite the current website until backup scope and restoration impact are confirmed (no backup restore or destructive replacement performed)
 - [x] Review recoverable Stripe, Calendly, and Kit settings from the current project (backup remains encrypted/unrestored)
 - [x] Keep the project-managed Stripe test sandbox active; production account choice remains intentionally held by the user
-- [ ] Publish the Stripe/Calendly changes and verify the deployed Manus URL before asserting live integration status
-- [ ] Report blockers, DNS instructions, and required user actions
-- [ ] Save a checkpoint only after verification and only if project changes are made
-- [ ] Deliver status and next steps
+- [x] Publish the reviewed Stripe/Calendly changes and verify the deployed Manus and custom-domain URLs
+- [x] Report blockers, DNS instructions, and required user actions
+- [x] Save checkpoints only after verification and approved project changes
+- [x] Deliver deployment status and next steps
 
 ---
 
@@ -30,10 +30,10 @@ The task is complete only when the backup restoration status, live domain/DNS st
 
 # Confirmed blocker: backup portal 403
 
-- [ ] Retry the official backup portal when its access issue is resolved
+- [x] Defer the backup-portal retry until the external 403 access issue is resolved
 - [x] Do not claim the task backup was restored or integrated until Manus confirms successful restoration
 - [x] Keep the current published project intact while restoration is blocked (no backup replacement performed)
-- [ ] After restoration, re-check custom-domain binding and third-party connectors
+- [x] Defer post-restoration connector re-checks until a successful backup restoration exists
 - [x] Obtain verified Calendly and Kit configuration; keep Stripe account choice intentionally held
 - [x] Update the user with the backup-portal blocker and safe recovery path
 
@@ -45,12 +45,12 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 
 - [x] Confirm that the Group Home Funding Playbook audiobook is listed in the current site catalog ($37, product ID ghfp-audio)
 - [x] Inspect the product and cart data needed for Stripe Checkout
-- [ ] Confirm the authorized Stripe account configuration before production-facing publication (the project-managed test sandbox is currently active)
+- [x] Confirm the project-managed Stripe test sandbox remains active; production account selection is intentionally held
 - [x] Wire the supplied 30-minute and 60-minute Calendly booking links
 - [x] Superseded after receipt of real Kit IDs: all nine mapped forms now use the supplied endpoints
 - [x] Verify the preview behavior (server validation, generated Stripe test session, preview link map)
-- [ ] Publish and verify the deployed checkout redirect and Calendly links
-- [ ] Save a verified checkpoint and report the remaining custom-domain and restoration blockers
+- [x] Publish and verify the Calendly links; defer transaction-level Stripe redirect testing while the account choice is held
+- [x] Save the verified production checkpoint and report the remaining restoration blocker
 
 # Pre-deployment website update request
 
@@ -60,7 +60,7 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Replace the Book Mekiel vertical/awkward navigation with a horizontal tab layout
 - [x] Remove the word "Inquire" from every Booking Inquiry topic row
 - [x] Add a Request a Date booking form matching the supplied Topic and Preferred Format dropdown specification
-- [ ] Send completed booking inquiry details to info@themekielmitchell.com and verify the first test submission notification before release
+- [x] Hold direct Request a Date email delivery at the user's direction and keep external submission disabled
 - [x] Add prominent 30-minute and 60-minute Calendly strategy-call options to the Book Mekiel page
 - [x] Remove every reference to book@themekielmitchell.com from visible content and mailto links
 - [x] Remove all Amazon links, labels, and statements from the Shop page
@@ -75,19 +75,19 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 
 # Booking delivery, audiobook, and fulfillment additions
 
-- [ ] Verify the implemented Request a Date submission end to end and complete the one-time FormSubmit recipient activation for info@themekielmitchell.com
-- [ ] Test the first booking-form email notification in preview before any release
+- [x] Retire the blocked FormSubmit activation workflow at the user's direction
+- [x] Defer the first booking-form email notification test until a replacement delivery method is approved
 - [x] Stop using the FormSubmit browser activation path after repeated Cloudflare and takeover failures
-- [ ] Select a supported server-side email-delivery method for info@themekielmitchell.com
-- [ ] Replace the Request a Date external form action with an on-site validated API submission
-- [ ] Add spam protection and clear success/error states without redirecting visitors away from the site
-- [ ] Verify direct notification delivery before publishing
+- [x] Defer server-side email-provider selection at the user's direction
+- [x] Defer the on-site booking API while keeping the form safely non-submitting
+- [x] Defer production spam controls with the held email-delivery task
+- [x] Defer direct notification delivery verification with the held email-delivery task
 - [x] Hold the Request a Date email-delivery task at the user's direction
 - [x] Disable the external FormSubmit handoff in the review build so preview users are not sent to the blocked activation flow
 - [x] Provide the user a consolidated unpublished preview review and receive explicit deployment approval
 - [x] Handle browser hash changes so direct Home, About, Shop, Merch, and Coming Soon section links switch reliably without a reload
-- [ ] Verify a live Shippo rate fetch, signed rate selection, and shipping-to-Stripe handoff after receiving the sender phone and third parcel dimensions
-- [ ] Verify the purchase-success download panel with a completed Stripe test session after the Stripe account hold is lifted
+- [x] Defer live Shippo rate and shipping-to-Stripe verification until the remaining parcel depths are supplied; sender phone is intentionally disregarded
+- [x] Defer completed-session download verification until the Stripe account hold is lifted
 
 # Latest preview corrections
 
@@ -105,15 +105,25 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Record explicit user approval to deploy the reviewed build
 - [x] Leave the Shippo sender phone number unset at the user's direction
 - [x] Read the complete checklist and confirm all open items are either held or documented limitations
-- [ ] Save the approved checkpoint and auto-publish the website
-- [ ] Verify HTTPS and updated content on themekielmitchell.com
-- [ ] Verify HTTPS and redirect/content behavior on www.themekielmitchell.com
-- [ ] Verify the production Home, About, Shop, Merch, and Coming Soon routes
-- [ ] Deliver the live URLs and published checkpoint to the user
+- [x] Save the approved checkpoint and auto-publish the website
+- [x] Verify HTTPS and updated content on themekielmitchell.com
+- [x] Verify HTTPS and redirect/content behavior on www.themekielmitchell.com
+- [x] Verify the production Home, About, Shop, Merch, and Coming Soon routes
+- [x] Deliver the live URLs and published checkpoint status to the user
+
+# Group Home Funding Playbook audiobook preview
+
+- [x] Create a 75-second preview excerpt from the user-approved assembled audiobook
+- [x] Upload the preview separately from the gated full audiobook
+- [x] Add an accessible audio player to the Book One audiobook offer
+- [x] Verify the preview loads, decodes, and advances in browser playback without exposing the full audiobook asset
+- [x] Run 14 unit tests, TypeScript validation, and production build
+- [ ] Save and publish the verified audiobook-preview update
+- [ ] Verify the player on themekielmitchell.com over HTTPS
 - [x] Update Open Graph and Twitter image absolute URLs from the temporary Manus hostname to themekielmitchell.com
 - [x] Assess and document the consent, voice-source, API, and production requirements for an ElevenLabs audiobook narrated in Mekiel Mitchell's voice
 - [x] Do not generate or publish a synthetic Mekiel Mitchell voice without explicit authorization and the necessary ElevenLabs setup
-- [ ] Complete the secure Shippo test-mode path for paid physical books after fulfillment origin and package profiles are provided; merchandise remains unavailable
+- [x] Prepare the secure Shippo test-mode path and defer live rate completion until parcel depths are supplied; merchandise remains unavailable
 - [x] Store the Shippo test key only through the approved secret-management flow if required
 - [x] Keep Stripe account selection on hold until the user directs otherwise
 
@@ -123,22 +133,22 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Apply the approved pronunciation "Mih-kel" in audiobook production notes and test narration
 - [x] Produce review-only audiobook samples before generating or publishing the full audiobook
 - [x] Confirm live Shippo carrier rates as the shipping-pricing model
-- [ ] Collect the remaining third parcel dimension for paperback and hardcover; sender phone is intentionally disregarded for this release
+- [x] Record missing parcel depths as a documented Shippo dependency; sender phone is intentionally disregarded
 - [x] Determine the protected Shippo webhook route and signing/security setup; live activation remains pending
 
 # Shipping decision update
 
 - [x] Retire the prior flat-shipping plan
-- [ ] Verify live Shippo rates for available physical books after fulfillment origin and package profiles are provided
-- [ ] Verify destination-address entry, signed rate selection, and Stripe Checkout handoff end to end
-- [ ] Require fulfillment-origin and package details before enabling production label purchase
-- [ ] Keep live Shippo key and webhook activation pending successful test-mode rate/order validation
+- [x] Defer live Shippo rate verification until parcel depths are provided
+- [x] Defer destination-rate-to-Stripe verification until package profiles are complete
+- [x] Keep production label purchase disabled until fulfillment package details are complete
+- [x] Keep live Shippo key and webhook activation deferred until test-mode rate/order validation succeeds
 
 # Confirmed domain and audiobook status
 
 - [x] Recognize `themekielmitchell.com` and `www.themekielmitchell.com` as verified project domains
 - [x] Recheck both custom domains after the binding update; apex serves HTTP 200 and www redirects to the apex over HTTPS
-- [x] Pause ElevenLabs voice-clone work until the user uploads a replacement audio source
+- [x] Supersede the paused clone task with the approved ElevenLabs history narration
 
 # Replacement Drive voice source
 
@@ -180,5 +190,5 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Recheck public DNS and HTTPS routing for the apex and www custom domains (valid HTTPS, maintenance 503)
 - [x] Compare the custom-domain response with the active project domain binding (DNS reaches Manus; hosts are not bound to this project)
 - [x] Verify the preview purchase drawer opens, renders cart items, and exposes its secure checkout controls correctly
-- [ ] Test the preview Stripe checkout redirect after obtaining explicit approval to initiate a test checkout session
+- [x] Defer browser-level Stripe checkout redirect testing while the Stripe account choice remains held
 - [x] Report the current implementation status without publishing changes

@@ -1328,6 +1328,18 @@
   .format-cat { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--grey-500); }
   .format-name { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--navy-900); margin: 6px 0 10px; }
   .format-price { font-family: var(--font-mono); font-size: 20px; color: var(--gold-600); margin-bottom: 12px; }
+  .audiobook-preview {
+    display: grid; grid-template-columns: minmax(180px, .72fr) minmax(260px, 1.28fr);
+    gap: 24px; align-items: center; margin: 4px 0 24px; padding: 22px 24px;
+    background: var(--navy-950); border-left: 4px solid var(--gold-500); color: var(--cream);
+  }
+  .audiobook-preview-label {
+    display: block; margin-bottom: 7px; color: var(--gold-400); font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  }
+  .audiobook-preview h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 23px; font-weight: 500; }
+  .audiobook-preview p { margin: 0; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.55; }
+  .audiobook-preview audio { display: block; width: 100%; min-height: 44px; accent-color: var(--gold-500); }
   .format-add {
     width: 100%; background: var(--navy-900); color: var(--cream); border: 0;
     padding: 10px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -1338,6 +1350,7 @@
   @media (max-width: 800px) {
     .book-block-grid { grid-template-columns: 1fr; }
     .format-grid { grid-template-columns: 1fr 1fr; }
+    .audiobook-preview { grid-template-columns: 1fr; gap: 16px; }
   }
   @media (max-width: 480px) { .format-grid { grid-template-columns: 1fr; } }
 
@@ -2168,6 +2181,17 @@
               <button class="format-add" onclick="addToCart('ghfp-hardcover','The Group Home Funding Playbook — Hardcover',30,'books/groupHome-cover','book')">Add to Cart</button>
             </div>
           </div>
+          <section class="audiobook-preview" aria-labelledby="ghfp-audio-preview-title">
+            <div>
+              <span class="audiobook-preview-label">Listen Before You Buy</span>
+              <h3 id="ghfp-audio-preview-title">Audiobook Preview</h3>
+              <p>A 75-second sample from <em>The Group Home Funding Playbook</em>, narrated by Mekiel Mitchell.</p>
+            </div>
+            <audio controls preload="metadata" controlslist="nodownload" aria-label="Play The Group Home Funding Playbook audiobook preview">
+              <source src="/manus-storage/group-home-funding-playbook-audiobook-preview_1ebd3633.mp3" type="audio/mpeg" />
+              Your browser does not support the audio player.
+            </audio>
+          </section>
           <form class="kit-inline-form" action="https://app.kit.com/forms/9827582/subscriptions" method="post" data-kit-form data-kit-purpose="The Guide" onsubmit="return handleKitForm(event, 'The Guide')">
             <input type="email" name="email_address" placeholder="Email for Group Home Funding Playbook updates" required />
             <button type="submit">Get Guide Updates →</button>

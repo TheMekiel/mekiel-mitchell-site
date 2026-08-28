@@ -133,9 +133,9 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 
 - [x] Verify the current workspace contains the full production client content for Home, Book Mekiel, Shop, Merch, and Request a Date in `client/index.html`
 - [x] Verify the connected GitHub remote targets `TheMekiel/mekiel-mitchell-site`
-- [ ] Save a synchronization checkpoint that pushes the complete project to GitHub
-- [ ] Verify the remote main branch contains the production `client/index.html` and supporting backend files
-- [ ] Report the exact remote file locations for all requested page content
+- [x] Save synchronization checkpoint `60b7c2f6` and push the complete project to GitHub
+- [x] Verify remote `main` matches the local checkpoint and contains the 6,982,299-byte production `client/index.html` plus supporting backend files
+- [x] Report that Home, About, Book Mekiel, Shop, Merch, Coming Soon, and Request a Date are implemented in `client/index.html`; backend integrations are under `server/` and schema under `drizzle/`
 - [x] Update Open Graph and Twitter image absolute URLs from the temporary Manus hostname to themekielmitchell.com
 - [x] Assess and document the consent, voice-source, API, and production requirements for an ElevenLabs audiobook narrated in Mekiel Mitchell's voice
 - [x] Do not generate or publish a synthetic Mekiel Mitchell voice without explicit authorization and the necessary ElevenLabs setup

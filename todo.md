@@ -120,6 +120,14 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Run 14 unit tests, TypeScript validation, and production build
 - [x] Save and publish the verified audiobook-preview update as checkpoint 11d693b9
 - [x] Verify the player on themekielmitchell.com over HTTPS with a 75-second duration and ready-state load
+
+# Approved voice-recording preservation
+
+- [x] Inventory all 34 approved ElevenLabs history recordings and production manifests
+- [x] Create the private approved-history archive and retain the assembly metadata separately
+- [x] Upload the approved-history archive to persistent project storage without adding a public website link
+- [x] Verify archive file count, checksum, HTTP status, content type, and stored-object size
+- [x] Leave the public audiobook preview on the Shop page until the user decides otherwise
 - [x] Update Open Graph and Twitter image absolute URLs from the temporary Manus hostname to themekielmitchell.com
 - [x] Assess and document the consent, voice-source, API, and production requirements for an ElevenLabs audiobook narrated in Mekiel Mitchell's voice
 - [x] Do not generate or publish a synthetic Mekiel Mitchell voice without explicit authorization and the necessary ElevenLabs setup

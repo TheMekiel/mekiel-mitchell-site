@@ -1,8 +1,12 @@
-# Mekiel Mitchell Website — Unpublished Review Build
+# Mekiel Mitchell Website — Published Status
 
-**Status:** Ready for visual review; no new checkpoint has been saved and no updated code has been published.
+**Status:** Live on the verified custom domains. Audiobook preview update published as checkpoint `11d693b9`.
 
-**Preview:** `https://3000-ivt8nup73gkpo577lrq9w-37d075ca.us3.manus.computer/`
+**Live site:** `https://themekielmitchell.com/`
+
+## Published Audiobook Preview
+
+The Book One Shop section now includes a responsive 75-second preview player for *The Group Home Funding Playbook* audiobook. Production verification confirmed that the separate preview MP3 loads over HTTPS, reports a 75-second duration, and reaches browser ready state 4. The full 99.9-minute audiobook remains protected behind the paid-session delivery route.
 
 ## Completed in the Review Build
 
@@ -38,7 +42,7 @@
 | Item | Status / required input |
 |---|---|
 | Request a Date email delivery | Held at the user’s direction. The form is visible and testable, but it does not send. |
-| Live Shippo rate test | The purchase drawer and Get Live Rates control were tested. The UI correctly reported that fulfillment origin and package profiles are incomplete. It still needs the sender phone number and the third packaged dimension for paperback (`9 × 7 × ? in`) and hardcover (`11 × 9 × ? in`). Both supplied weights are currently understood as 0.50 lb but should be confirmed. |
+| Live Shippo rate test | The purchase drawer and Get Live Rates control were tested. The UI correctly reported that package profiles are incomplete. Sender phone is intentionally disregarded; the remaining inputs are the third packaged dimension for paperback (`9 × 7 × ? in`) and hardcover (`11 × 9 × ? in`). Both supplied weights are currently understood as 0.50 lb but should be confirmed. |
 | Live Shippo key/webhook registration | Do not configure yet. Complete test-mode rate selection first. Prepared production path: `/api/shippo/webhook/:token`. |
 | Stripe account choice | Still on hold. No payment should be completed during visual review. |
 | Paid purchase download test | Requires a completed Stripe test session after the account hold is lifted. |
@@ -49,8 +53,8 @@ The active purchase drawer opened with two review items, displayed subtotal and 
 
 > “Live shipping rates need configuration: fulfillment origin, package profiles.”
 
-No carrier rate options were returned because the fulfillment profile remains incomplete. The remaining required inputs are the sender phone number, paperback depth for `9 × 7 × ? inches`, and hardcover depth for `11 × 9 × ? inches`. The supplied weights are recorded as `0.50 lb` each but still require confirmation.
+No carrier rate options were returned because the package profiles remain incomplete. Sender phone is intentionally disregarded. The remaining required inputs are paperback depth for `9 × 7 × ? inches` and hardcover depth for `11 × 9 × ? inches`. The supplied weights are recorded as `0.50 lb` each but still require confirmation.
 
 ## Review Instructions
 
-Open the Preview panel and review **Book Mekiel**, **Shop**, **Merch**, **Coming Soon**, and the cart drawer. The custom domains continue to show the previously published version until a new checkpoint is approved and saved.
+Open `https://themekielmitchell.com/#/shop` to review the Book One audiobook player and the published catalog. `https://www.themekielmitchell.com/` redirects securely to the apex domain.

@@ -9,6 +9,10 @@ const kitEmailLogo = new URL("../project-files/kit-email-logo-transparent.png", 
 const kitLandingHero = new URL("../project-files/kit-landing-hero.jpg", import.meta.url);
 const kitMobileLandingHero = new URL("../project-files/kit-landing-hero-mobile.jpg", import.meta.url);
 const kitBrandSettings = new URL("../project-files/kit-brand-settings.txt", import.meta.url);
+const kitEmailTemplate = new URL("../project-files/kit-email-template.html", import.meta.url);
+const kitPrimaryButtonCss = new URL("../project-files/kit-primary-button.css", import.meta.url);
+const kitHandoffGuide = new URL("../project-files/kit-handoff-guide.md", import.meta.url);
+const kitSocialSharingImage = new URL("../project-files/kit-social-sharing-og.jpg", import.meta.url);
 const openingPageSource = new URL("../client/index.html", import.meta.url);
 const openingPageCopy = new URL("../project-files/opening-page.html", import.meta.url);
 
@@ -81,5 +85,31 @@ describe("saved site asset copies", () => {
     expect(settings).toContain("Cormorant Garamond");
     expect(settings).toContain("Outfit");
     expect(settings).toContain("DM Mono");
+  });
+
+  it("includes a Kit-compatible email template and primary button styling", async () => {
+    const [template, buttonCss] = await Promise.all([
+      readFile(kitEmailTemplate, "utf8"),
+      readFile(kitPrimaryButtonCss, "utf8"),
+    ]);
+
+    expect(template).toContain('class="email-button"');
+    expect(template).toContain("The <em");
+    expect(template).not.toContain("REPLACE_WITH_KIT_MEDIA_URL");
+    expect(template).toContain("#d4af37");
+    expect(buttonCss).toContain(".email-button");
+    expect(buttonCss).toContain("letter-spacing: 0.18em");
+  });
+
+  it("includes an optimized Open Graph image and clear Kit handoff guidance", async () => {
+    const [socialImage, handoffGuide] = await Promise.all([
+      readFile(kitSocialSharingImage),
+      readFile(kitHandoffGuide, "utf8"),
+    ]);
+
+    expect(readJpegDimensions(socialImage)).toEqual({ width: 1200, height: 630 });
+    expect(socialImage.byteLength).toBeLessThan(25 * 1024 * 1024);
+    expect(handoffGuide).toContain("kit-social-sharing-og.jpg");
+    expect(handoffGuide).toContain("kit-email-template.html");
   });
 });

@@ -1,0 +1,26 @@
+/*
+  Primary button reference extracted from the opening page.
+  Apply this to Kit's .email-button class in a custom HTML email template.
+*/
+
+.email-button {
+  display: inline-block !important;
+  padding: 16px 28px !important;
+  border: 1px solid #d4af37 !important;
+  background-color: #d4af37 !important;
+  color: #0a1a33 !important;
+  font-family: Outfit, Arial, sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.18em !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  text-transform: uppercase !important;
+}
+
+/* Opening-page hover reference. Many email clients ignore hover states. */
+.email-button:hover {
+  background-color: #e8c661 !important;
+  color: #0a1a33 !important;
+}

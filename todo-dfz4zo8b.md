@@ -28,3 +28,12 @@
 - [x] Create a smaller mobile-optimized Kit landing-page hero image from the existing hero source
 - [x] Validate the Kit brand reference and mobile hero files without changing the live website
 - [x] Deliver the Kit brand reference and mobile hero files to the user
+- [x] Inspect the opening page's primary button styles and Open Graph source image
+- [x] Confirm Kit guidance for custom HTML email content and social-sharing images
+- [x] Create a branded HTML email template and primary-button style reference for Kit
+- [x] Optimize the existing Open Graph image for Kit social sharing
+- [x] Create clear Kit handoff instructions identifying each uploadable file
+- [x] Validate the email, button, social-sharing, and handoff assets without changing the live website
+- [ ] Deliver the complete Kit email and social-sharing asset set to the user
+- [x] Finalize the HTML email template with a self-contained header and no unresolved logo URL placeholder
+- [x] Re-validate the finalized Kit email template and handoff instructions

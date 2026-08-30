@@ -1,0 +1,37 @@
+THE MEKIEL MITCHELL — KIT BRAND REFERENCE
+Source: Existing opening-page brand system in client/index.html.
+
+PRIMARY BRAND COLORS
+The opening page uses deep navy as its dominant field, gold as its signature accent, cream for primary text on dark backgrounds, and cool greys for secondary information. Add the core colors below to Kit Brand settings so landing pages and email templates retain the same hierarchy.
+
+Dominant navy:        #0A1A33  (Navy 900; primary background)
+Deepest navy:         #060F22  (Navy 950; top bar and deep contrast)
+Supporting navy:      #142A4D  (Navy 700; secondary dark surface)
+Signature gold:       #D4AF37  (Gold 500; primary accent, buttons, emphasis)
+Deep gold:            #B89730  (Gold 600; restrained accent)
+Light gold:           #E8C661  (Gold 300; dark-background highlight)
+Primary cream:        #FAFAF7  (Primary light text and light canvas)
+Secondary slate:      #94A3B8  (Grey 400; muted text)
+Body charcoal:        #2A2F38  (Grey 700; body copy on light backgrounds)
+Primary ink:          #0B0F18  (Primary text on light backgrounds)
+
+TYPOGRAPHY
+The visual system uses a high-contrast editorial serif for feature text, a modern geometric sans serif for body copy and navigation, and a monospaced face for labels and metadata.
+
+Display and headlines: Cormorant Garamond
+Use for: main headings, the brand wordmark, feature callouts, pull quotes, and prices.
+Configured weights: 300, 400, 500, 600, 700; italics at 300 and 400.
+Fallbacks: Times New Roman, serif.
+
+Body and navigation: Outfit
+Use for: body copy, navigation, buttons, forms, and supporting product text.
+Configured weights: 200, 300, 400, 500, 600, 700.
+Fallbacks: system-ui, -apple-system, sans-serif.
+
+Labels and metadata: DM Mono
+Use for: uppercase section labels, dates, small descriptors, stat labels, and letter-spaced utility text.
+Configured weights: 300 and 400.
+Fallbacks: IBM Plex Mono, monospace.
+
+KIT TEMPLATE APPLICATION
+For Kit headings, use Cormorant Garamond where available; otherwise use Georgia as the closest broadly available serif substitute. Use Outfit for body text where available; otherwise choose Kit's cleanest modern sans-serif. Reserve gold (#D4AF37) for calls to action and emphasis rather than large blocks of text. Pair cream (#FAFAF7) text with navy (#0A1A33) backgrounds for the strongest brand contrast.

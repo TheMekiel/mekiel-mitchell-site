@@ -13,6 +13,7 @@ The exported files in this folder are intended for manual upload to Kit and do n
 | `kit-favicon.svg` | Existing MM favicon | 180 × 180 self-contained vector recreation | Brand settings favicon backup |
 | `kit-email-logo-transparent.png` | Rendered navigation wordmark from the opening page | 195 × 74 px, transparent RGBA PNG | Email-template logo |
 | `kit-landing-hero.jpg` | Opening-page hero portrait | 1920 × 1080 px progressive JPEG, approximately 188 KB | Landing-page hero image |
+| `kit-landing-hero-mobile.jpg` | Opening-page hero portrait | 1080 × 1920 px progressive JPEG, approximately 180 KB | Mobile landing-page hero image |
 
 > The source project contains only the PNG favicon, not its original vector artwork. The SVG is a close, self-contained vector recreation of the existing navy, gold-ring, and MM monogram design rather than an export from an unavailable original vector source.
 

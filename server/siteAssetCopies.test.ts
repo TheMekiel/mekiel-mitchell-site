@@ -7,6 +7,8 @@ const kitFavicon = new URL("../project-files/kit-favicon.png", import.meta.url);
 const kitFaviconSvg = new URL("../project-files/kit-favicon.svg", import.meta.url);
 const kitEmailLogo = new URL("../project-files/kit-email-logo-transparent.png", import.meta.url);
 const kitLandingHero = new URL("../project-files/kit-landing-hero.jpg", import.meta.url);
+const kitMobileLandingHero = new URL("../project-files/kit-landing-hero-mobile.jpg", import.meta.url);
+const kitBrandSettings = new URL("../project-files/kit-brand-settings.txt", import.meta.url);
 const openingPageSource = new URL("../client/index.html", import.meta.url);
 const openingPageCopy = new URL("../project-files/opening-page.html", import.meta.url);
 
@@ -55,12 +57,29 @@ describe("saved site asset copies", () => {
     expect(svg).not.toContain("<text");
   });
 
-  it("includes a transparent email logo and optimized 1920px Kit landing-page hero", async () => {
-    const [logoPng, heroJpeg] = await Promise.all([readFile(kitEmailLogo), readFile(kitLandingHero)]);
+  it("includes a transparent email logo and optimized Kit landing-page heroes", async () => {
+    const [logoPng, heroJpeg, mobileHeroJpeg] = await Promise.all([
+      readFile(kitEmailLogo),
+      readFile(kitLandingHero),
+      readFile(kitMobileLandingHero),
+    ]);
 
     expect(logoPng.subarray(1, 4).toString("ascii")).toBe("PNG");
     expect(logoPng[25]).toBe(6);
     expect(readJpegDimensions(heroJpeg)).toEqual({ width: 1920, height: 1080 });
     expect(heroJpeg.byteLength).toBeLessThan(25 * 1024 * 1024);
+    expect(readJpegDimensions(mobileHeroJpeg)).toEqual({ width: 1080, height: 1920 });
+    expect(mobileHeroJpeg.byteLength).toBeLessThan(25 * 1024 * 1024);
+  });
+
+  it("records the primary colors and typography for Kit templates", async () => {
+    const settings = await readFile(kitBrandSettings, "utf8");
+
+    expect(settings).toContain("#0A1A33");
+    expect(settings).toContain("#D4AF37");
+    expect(settings).toContain("#FAFAF7");
+    expect(settings).toContain("Cormorant Garamond");
+    expect(settings).toContain("Outfit");
+    expect(settings).toContain("DM Mono");
   });
 });

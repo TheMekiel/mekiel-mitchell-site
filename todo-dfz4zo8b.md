@@ -23,4 +23,4 @@
 - [x] Extract the opening-page main logo as a transparent PNG for Kit email templates
 - [x] Optimize the opening-page hero image as an uploadable Kit landing-page image
 - [x] Validate the exported asset set without changing the live website
-- [ ] Deliver the complete Kit-ready asset set to the user
+- [x] Deliver the complete Kit-ready asset set to the user

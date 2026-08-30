@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="MM monogram favicon">
+  <rect width="180" height="180" fill="#0A1A33"/>
+  <circle cx="90" cy="90" r="82" fill="none" stroke="#D4AF37" stroke-width="2"/>
+  <g fill="#D4AF37">
+    <path d="M862 0H827L336 1153V80L516 53V0H59V53L231 80V1262L59 1288V1341H465L901 321L1377 1341H1761V1288L1589 1262V80L1761 53V0H1217V53L1397 80V1153Z" transform="translate(15.339 118) scale(0.041 -0.041)"/>
+    <path d="M862 0H827L336 1153V80L516 53V0H59V53L231 80V1262L59 1288V1341H465L901 321L1377 1341H1761V1288L1589 1262V80L1761 53V0H1217V53L1397 80V1153Z" transform="translate(90.000 118) scale(0.041 -0.041)"/>
+  </g>
+</svg>

@@ -17,3 +17,10 @@
 - [x] Confirm the current Kit favicon requirements: a square PNG or SVG; Kit does not publish an exact pixel dimension
 - [x] Create an optimized 180px-square PNG compatible with Kit without altering the original
 - [x] Validate and deliver the Kit-ready favicon file
+- [x] Locate and document the existing favicon, main logo, and hero-image sources in the opening page
+- [x] Confirm Kit requirements for SVG favicon uploads and landing-page image optimization
+- [x] Create an SVG vector backup of the existing favicon for Kit
+- [x] Extract the opening-page main logo as a transparent PNG for Kit email templates
+- [x] Optimize the opening-page hero image as an uploadable Kit landing-page image
+- [x] Validate the exported asset set without changing the live website
+- [ ] Deliver the complete Kit-ready asset set to the user

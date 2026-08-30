@@ -27,4 +27,4 @@
 - [x] Extract the opening page's primary brand colors and typography into a Kit reference file
 - [x] Create a smaller mobile-optimized Kit landing-page hero image from the existing hero source
 - [x] Validate the Kit brand reference and mobile hero files without changing the live website
-- [ ] Deliver the Kit brand reference and mobile hero files to the user
+- [x] Deliver the Kit brand reference and mobile hero files to the user

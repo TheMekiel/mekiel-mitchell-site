@@ -12,3 +12,8 @@
 - [x] Save a project checkpoint for the verified copy-only asset update
 - [x] Confirm the saved version includes the favicon copy, opening-page copy, and regression test
 - [x] Confirm checkpoint d025db30 includes project-files/favicon.png, project-files/opening-page.html, and server/siteAssetCopies.test.ts
+- [x] Confirm the copied favicon PNG is suitable for direct upload to Kit
+- [x] Deliver the standalone favicon PNG attachment without modifying the website
+- [x] Confirm the current Kit favicon requirements: a square PNG or SVG; Kit does not publish an exact pixel dimension
+- [x] Create an optimized 180px-square PNG compatible with Kit without altering the original
+- [ ] Validate and deliver the Kit-ready favicon file

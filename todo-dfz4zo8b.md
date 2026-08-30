@@ -16,4 +16,4 @@
 - [x] Deliver the standalone favicon PNG attachment without modifying the website
 - [x] Confirm the current Kit favicon requirements: a square PNG or SVG; Kit does not publish an exact pixel dimension
 - [x] Create an optimized 180px-square PNG compatible with Kit without altering the original
-- [ ] Validate and deliver the Kit-ready favicon file
+- [x] Validate and deliver the Kit-ready favicon file

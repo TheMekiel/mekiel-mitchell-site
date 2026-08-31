@@ -1,6 +1,6 @@
-# Opening-Page Publication Verification
+# Historical Opening-Page Publication Verification
 
-The approved opening-page update was published in checkpoint `53097082`. The verification checks below were completed against both custom production domains.
+The temporary update was published in checkpoint `53097082`; the checks below document that historical state. It has since been intentionally restored at the user’s request. The generated portrait assets remain separate project assets and are no longer referenced by the website.
 
 | Check | `themekielmitchell.com` | `www.themekielmitchell.com` |
 | --- | --- | --- |
@@ -11,4 +11,4 @@ The approved opening-page update was published in checkpoint `53097082`. The ver
 | Twitter image | References `opening-page-social-preview-21-years-draft_993eaf78.png` | References the same approved social-preview image |
 | In-page hero | References `opening-page-hero-portrait-preview_0d8e3223.png` | References the same approved hero image |
 
-The hero asset served by the live domain had SHA-256 `32eda578bc81f8374be7393a3f46b17d683846b8ecf44868a9afbf906577dcdb`, matching the approved source asset. The social-preview asset served by the live domain had SHA-256 `9c6ac16b314d19cbde9376b6e7dda9a3a172ddf2070f4e0c9f89bb270fc3313c`, also matching its approved source asset.
+The historical hero asset served by the live domain had SHA-256 `32eda578bc81f8374be7393a3f46b17d683846b8ecf44868a9afbf906577dcdb`, matching the approved source asset. The historical social-preview asset served by the live domain had SHA-256 `9c6ac16b314d19cbde9376b6e7dda9a3a172ddf2070f4e0c9f89bb270fc3313c`, also matching its approved source asset.

@@ -31,7 +31,7 @@ function readJpegDimensions(buffer: Buffer) {
 }
 
 describe("saved site asset copies", () => {
-  it("preserves the original favicon and opening-page snapshot", async () => {
+  it("preserves byte-identical copies of the favicon and original opening page", async () => {
     const [sourceFavicon, copiedFavicon, sourcePage, copiedPage] = await Promise.all([
       readFile(faviconSource),
       readFile(faviconCopy),
@@ -40,23 +40,19 @@ describe("saved site asset copies", () => {
     ]);
 
     expect(copiedFavicon.equals(sourceFavicon)).toBe(true);
-    expect(copiedPage).toContain("From 20 years inside");
-    expect(sourcePage).toContain("From 21 years inside");
+    expect(copiedPage).toBe(sourcePage);
   });
 
-  it("uses the unpublished 21-year portrait preview in the opening-page metadata and hero", async () => {
+  it("keeps generated portrait drafts as separate assets, not live page references", async () => {
     const openingPage = await readFile(openingPageSource, "utf8");
     const metadata = openingPage.slice(0, 4_000);
-    const generatedHeroAssetIndex = openingPage.indexOf("opening-page-hero-portrait-preview_0d8e3223.png");
 
-    expect(metadata).toContain("from 21 years inside to a multi-million dollar real estate portfolio");
-    expect(metadata).toContain("From 21 years inside to a multi-million dollar real estate portfolio");
-    expect(metadata).not.toContain("from 20 years inside");
-    expect(metadata).not.toContain("From 20 years inside");
-    expect(metadata).toContain("opening-page-social-preview-21-years-draft_993eaf78.png");
-    expect(generatedHeroAssetIndex).toBeGreaterThan(-1);
-    expect(metadata).toContain('property="og:image:width" content="2560"');
-    expect(metadata).toContain('property="og:image:height" content="1440"');
+    expect(metadata).toContain("from 20 years inside to a multi-million dollar real estate portfolio");
+    expect(metadata).toContain("From 20 years inside to a multi-million dollar real estate portfolio");
+    expect(metadata).toContain('property="og:image" content="https://themekielmitchell.com/og-image.jpg"');
+    expect(metadata).toContain('name="twitter:image" content="https://themekielmitchell.com/og-image.jpg"');
+    expect(openingPage).not.toContain("opening-page-social-preview-21-years-draft_993eaf78.png");
+    expect(openingPage).not.toContain("opening-page-hero-portrait-preview_0d8e3223.png");
   });
 
   it("keeps the Kit upload favicon as a 180px square PNG", async () => {

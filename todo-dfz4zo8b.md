@@ -62,3 +62,12 @@
 - [x] Record the exact live-domain verification evidence after propagation
 - [x] Perform a final live custom-domain visual verification of the approved opening-page hero
 - [x] Confirm the live-domain verification evidence file exists in the project assets
+- [x] Restore the original website hero photo and remove the generated portrait override from the live page
+- [x] Restore the website's original 20-year descriptions and Open Graph/Twitter image references
+- [x] Retain the generated 21-year hero image as an unreferenced project asset only
+- [x] Test and visually verify the restored website before publication
+- [ ] Publish the restoration and verify the custom domains serve the original website experience
+- [x] Open and inspect the restored homepage preview to confirm the original hero photo is back and no generated override is visible
+- [x] Record the restored homepage visual-verification result before publishing
+- [x] Confirm the restored-homepage visual verification note is saved in the project assets
+- [x] Read back the saved restoration-verification file before publishing the rollback

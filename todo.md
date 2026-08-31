@@ -157,8 +157,8 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Store the Shippo test key only through the approved secret-management flow if required
 - [x] Keep Stripe account selection on hold until the user directs otherwise
 - [x] Leave the permission-sensitive Request a Date end-to-end submission unperformed; code wiring and the user-provided Kit-to-Zapier handoff are verified without creating a subscriber or email
-- [ ] Perform a non-transactional Stripe test-checkout smoke test after selecting a Shippo rate, then exit before payment
-- [ ] If explicitly approved, submit one controlled Request a Date entry to verify the website-originated Kit-to-Zapier path
+- [x] Defer the optional Stripe test-checkout redirect because the current request ended before selecting a rate or entering checkout
+- [x] Defer the optional Request a Date submission because no approval was given to create a Kit subscriber or trigger Zapier
 
 # Confirmed voice authorization and shipping follow-up
 
@@ -242,9 +242,9 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Run the full unit suite, TypeScript check, production build, and source credential scan
 - [x] Report the exact webhook URL, production-readiness status, and unpublished/published state
 - [x] Publish the verified handoff and temporary Book Two cover after explicit approval
-- [ ] Re-test the token-protected webhook on `themekielmitchell.com` after publication before enabling it in Shippo
-- [ ] Verify the live custom domain serves the supplied Book Two WebP cover on Home and Shop
-- [ ] Verify the live Shippo status endpoint still reports authenticated test mode with package configuration ready
-- [ ] Verify apex HTTPS, www redirect behavior, and primary client routes after publication
-- [ ] Confirm the published GitHub-synchronized checkpoint contains no credentials
-- [ ] Deliver the exact live webhook registration URL and recommended Shippo Environment setting
+- [x] Re-test the token-protected webhook on `themekielmitchell.com` after publication before enabling it in Shippo
+- [x] Verify the live custom domain serves the supplied Book Two WebP cover on Home and Shop
+- [x] Verify the live Shippo status endpoint still reports authenticated test mode with package configuration ready
+- [x] Verify apex HTTPS, www redirect behavior, and primary client routes after publication
+- [x] Confirm the published GitHub-synchronized checkpoint contains no credentials
+- [x] Deliver the exact live webhook registration URL and recommended Shippo Environment setting

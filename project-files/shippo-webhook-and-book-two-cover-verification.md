@@ -39,6 +39,20 @@ No rate was selected in this repeat test, Stripe Checkout was not started, and n
 
 The currently published production deployment still returns HTTP 401 for both the new token and an incorrect token. This confirms that the new secret will not become active on the custom domain until the next checkpoint is published. Do not enable the Production webhook in Shippo before that publication and a follow-up endpoint test.
 
+### Post-publication update
+
+Checkpoint `d206a50a` was published after explicit user approval. Once deployment propagation completed, the custom domain reported `authenticated: true`, `testMode: true`, `readyForRates: true`, and no missing Shippo configuration. The correct token path now returns HTTP 400 for an intentionally incomplete payload while an incorrect token returns HTTP 401, confirming that the production endpoint recognizes the configured token without processing an event.
+
+The apex domain serves HTTP 200 over HTTPS, and `www.themekielmitchell.com` resolves to the HTTPS apex. The published HTML includes the temporary Book Two WebP, Kit Request a Date form `9856518`, and the approved audiobook preview source.
+
+The published Book Two Shop image was also verified in the browser at a natural size of 1254×1254 and a rendered size of 280×280 with `object-fit: contain`. Home, About, Shop, Merch, Coming Soon, Privacy, and Terms each activated correctly through the live client-side router. One paperback was added to the live cart and the verified North Charleston address was entered solely to repeat the nontransactional rate request; checkout remained unstarted.
+
+The published cart accepted the address and entered the `Requesting current carrier rates…` state after the live **Get Live Rates** action. The completed response was read separately to avoid treating the asynchronous loading state as a carrier result.
+
+The completed custom-domain response returned six selectable test-mode carrier services for the paperback: USPS Ground Advantage ($5.58), UPS Ground Saver ($6.27), UPS Ground ($7.10), USPS Priority Mail ($8.01), UPS 3 Day Select ($10.49), and UPS 2nd Day Air ($10.76). No rate was selected, Stripe Checkout was not entered, and no shipment or label was purchased.
+
+The checkpoint commit is `d206a50a86f35538ad7b6d57d1b0127f6a99378b`, and the connected GitHub `main` branch resolves to the same commit. The committed Book Two cover reference is present. Neither the configured webhook token nor provider credential patterns appear in the published commit. The live WebP resolves as HTTP 200 `image/webp` at 338,530 bytes, and the audiobook preview resolves as HTTP 200 `audio/mpeg` at 1,201,258 bytes.
+
 ## Responsive visual review
 
 Full-page Shop previews were reviewed at 1280×900 and 390×844. The temporary Book Two cover is sharp, uncropped, and legible in both layouts; its title, monogram, skyline, chart, and outer edges remain visible. The existing Coming Soon ribbon remains part of the site presentation and does not obscure the supplied title.

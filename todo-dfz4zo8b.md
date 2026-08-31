@@ -66,8 +66,12 @@
 - [x] Restore the website's original 20-year descriptions and Open Graph/Twitter image references
 - [x] Retain the generated 21-year hero image as an unreferenced project asset only
 - [x] Test and visually verify the restored website before publication
-- [ ] Publish the restoration and verify the custom domains serve the original website experience
+- [x] Publish the restoration and verify the custom domains serve the original website experience
 - [x] Open and inspect the restored homepage preview to confirm the original hero photo is back and no generated override is visible
 - [x] Record the restored homepage visual-verification result before publishing
 - [x] Confirm the restored-homepage visual verification note is saved in the project assets
 - [x] Read back the saved restoration-verification file before publishing the rollback
+- [x] Visually verify www.themekielmitchell.com shows the restored original hero and no generated portrait override
+- [x] Record persistent evidence that both custom domains serve the restored original website experience
+- [x] Confirm the restoration-verification file records both custom domains after checkpoint 74aef8c4
+- [x] Read back the final restoration-verification record before closing the restoration task

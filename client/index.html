@@ -1071,14 +1071,17 @@
     color: var(--gold-500); text-transform: uppercase;
     margin-bottom: 22px;
   }
-  .foot-col a {
+  .foot-col a, .foot-col .foot-link-muted {
     display: block;
     padding: 7px 0;
     color: var(--grey-300);
     font-size: 14px;
+  }
+  .foot-col a {
     transition: color .2s;
   }
   .foot-col a:hover { color: var(--gold-500); }
+  .foot-col .foot-link-muted { opacity: .62; }
   .foot-bottom {
     display: flex; justify-content: space-between;
     padding-top: 28px;
@@ -1262,7 +1265,7 @@
   .shop-teaser-grid {
     display: grid; grid-template-columns: 220px 220px 1fr; gap: 40px; align-items: center;
   }
-  .teaser-cover-card img { width: 100%; box-shadow: 0 20px 50px rgba(10,26,51,0.18); }
+  .teaser-cover-card img { width: 100%; height: auto; object-fit: contain; box-shadow: 0 20px 50px rgba(10,26,51,0.18); }
   .teaser-cta-block p { font-family: var(--font-display); font-style: italic; font-size: 20px; color: var(--navy-800); margin-bottom: 18px; }
   @media (max-width: 860px) {
     .shop-teaser-grid { grid-template-columns: 1fr 1fr; }
@@ -1315,7 +1318,7 @@
   .book-block { background: var(--white); padding: clamp(60px,8vw,100px) 0; border-bottom: 1px solid var(--grey-200); }
   .book-block:nth-child(even) { background: var(--grey-50); }
   .book-block-grid { display: grid; grid-template-columns: 280px 1fr; gap: 56px; }
-  .book-cover-col img { width: 100%; box-shadow: 0 24px 60px rgba(10,26,51,0.2); }
+  .book-cover-col img { width: 100%; height: auto; object-fit: contain; box-shadow: 0 24px 60px rgba(10,26,51,0.2); }
   .book-info-col .book-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-600); }
   .book-info-col h2 { font-family: var(--font-display); font-size: clamp(28px,3.5vw,42px); font-weight: 500; color: var(--navy-900); margin: 10px 0 14px; }
   .book-info-col > p { color: var(--grey-700); font-size: 15.5px; line-height: 1.7; margin-bottom: 26px; max-width: 620px; }
@@ -1940,35 +1943,34 @@
           <button type="button" class="btn btn-gold" style="width:100%; justify-content:center;" onclick="toggleBookingForm(true)">Request a Date →</button>
 
           <div class="booking-form-wrap" id="bookingFormWrap" hidden>
-            <form class="booking-form" id="bookingInquiryForm" onsubmit="return handleBookingPreview(event)">
-              <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true" />
+            <form class="booking-form" id="bookingInquiryForm" action="https://app.kit.com/forms/9856518/subscriptions" method="post" data-kit-form data-kit-purpose="Request a Date" onsubmit="return handleKitForm(event, 'Request a Date')">
               <div class="tmm-field">
                 <label for="bookingName">Full name</label>
-                <input id="bookingName" name="Name" autocomplete="name" required />
+                <input id="bookingName" name="first_name" autocomplete="name" required />
               </div>
               <div class="tmm-field">
                 <label for="bookingOrganization">Organization</label>
-                <input id="bookingOrganization" name="Organization" autocomplete="organization" />
+                <input id="bookingOrganization" name="ck_field_1350992_organization" autocomplete="organization" />
               </div>
               <div class="tmm-field">
                 <label for="bookingEmail">Email</label>
-                <input id="bookingEmail" type="email" name="Email" autocomplete="email" required />
+                <input id="bookingEmail" type="email" name="email_address" autocomplete="email" required />
               </div>
               <div class="tmm-field">
                 <label for="bookingPhone">Phone</label>
-                <input id="bookingPhone" type="tel" name="Phone" autocomplete="tel" />
+                <input id="bookingPhone" type="tel" name="ck_field_1350993_phone" autocomplete="tel" />
               </div>
               <div class="tmm-field">
                 <label for="bookingDate">Requested event date</label>
-                <input id="bookingDate" type="date" name="Requested Date" required />
+                <input id="bookingDate" type="date" name="ck_field_1350746_preferred_date" required />
               </div>
               <div class="tmm-field">
                 <label for="bookingLocation">City and state</label>
-                <input id="bookingLocation" name="Event Location" placeholder="Atlanta, GA" required />
+                <input id="bookingLocation" name="ck_field_1350994_event_location" placeholder="Atlanta, GA" required />
               </div>
               <div class="tmm-field tmm-field-full">
                 <label for="bookingTopic">Which topic are you inquiring about?</label>
-                <select id="bookingTopic" name="Topic" required>
+                <select id="bookingTopic" name="ck_field_1350744_topic" required>
                   <option value="" disabled selected>Select a topic…</option>
                   <option>From Arbitrage to Ownership · The 20-Year Thesis</option>
                   <option>Re-Entry as a Wealth Pipeline, Not a Charity Problem</option>
@@ -1979,7 +1981,7 @@
               </div>
               <div class="tmm-field tmm-field-full">
                 <label for="bookingFormat">Preferred format</label>
-                <select id="bookingFormat" name="Format" required>
+                <select id="bookingFormat" name="ck_field_1350745_preferred_format" required>
                   <option value="" disabled selected>Select a format…</option>
                   <option>Virtual Keynote · 45–60 min</option>
                   <option>In-Person Keynote</option>
@@ -1988,16 +1990,15 @@
               </div>
               <div class="tmm-field">
                 <label for="bookingAudience">Estimated audience size</label>
-                <input id="bookingAudience" type="number" min="1" name="Audience Size" />
+                <input id="bookingAudience" type="number" min="1" name="ck_field_1350995_audience_size" />
               </div>
               <div class="tmm-field tmm-field-full">
                 <label for="bookingMessage">Event details</label>
-                <textarea id="bookingMessage" name="Message" placeholder="Tell us about your audience, venue, goals, and timing." required></textarea>
+                <textarea id="bookingMessage" name="ck_field_1350747_booking_details" placeholder="Tell us about your audience, venue, goals, and timing." required></textarea>
               </div>
-              <button class="btn btn-gold tmm-field-full" type="submit" style="width:100%; justify-content:center;">Submit Request (Preview) →</button>
+              <button class="btn btn-gold tmm-field-full" type="submit" style="width:100%; justify-content:center;">Submit Request →</button>
             </form>
-            <p class="cart-note">Preview mode: email delivery is currently held for review. No request will be sent from this preview.</p>
-            <p class="cart-note" id="bookingPreviewStatus" role="status" aria-live="polite"></p>
+            <p class="cart-note">Your request is submitted securely through Kit and routed to our business inbox through Zapier.</p>
           </div>
         </div>
 
@@ -2630,10 +2631,10 @@
         <p>We use trusted third parties to operate this site and are not responsible for their independent privacy practices, which are governed by their own policies:</p>
         <ul>
           <li><strong>Stripe</strong> — secure payment processing.</li>
-          <li><strong>Kit.com (ConvertKit)</strong> — email newsletter and waitlist delivery.</li>
+          <li><strong>Kit.com (ConvertKit)</strong> — email newsletter, waitlist, and speaking-request form delivery.</li>
           <li><strong>Shippo</strong> — live carrier rates, shipping labels, and shipment tracking for physical orders.</li>
           <li><strong>Calendly</strong> — strategy-call scheduling.</li>
-          <li><strong>FormSubmit</strong> — speaking-request delivery to our business inbox.</li>
+          <li><strong>Zapier</strong> — routes speaking-request notifications from Kit to our business inbox.</li>
         </ul>
 
         <h2>Data Sharing</h2>
@@ -2715,17 +2716,17 @@
       <div class="foot-col">
         <h4>Ventures</h4>
         <a href="https://calmquarters.com" target="_blank" rel="noopener">Calm Quarters ↗</a>
-        <a href="#">CLCG Construction ↗</a>
-        <a href="#">CLCG Field Day ↗</a>
-        <a href="#">From Arbitrage To Ownership</a>
+        <span class="foot-link-muted">CLCG Construction</span>
+        <span class="foot-link-muted">CLCG Field Day</span>
+        <a href="#" data-page="shop" onclick="showPage('shop');return false;">From Arbitrage To Ownership</a>
       </div>
       <div class="foot-col">
         <h4>Connect</h4>
         <a href="mailto:info@themekielmitchell.com">info@themekielmitchell.com</a>
-        <a href="#">Instagram</a>
-        <a href="#">YouTube</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">TikTok</a>
+        <span class="foot-link-muted">Instagram · Link Pending</span>
+        <span class="foot-link-muted">YouTube · Link Pending</span>
+        <span class="foot-link-muted">LinkedIn · Link Pending</span>
+        <span class="foot-link-muted">TikTok · Link Pending</span>
       </div>
     </div>
     <div class="foot-legal">
@@ -2745,6 +2746,18 @@
      PAGE ROUTER
      ============================================================ */
   const PAGES = ['home','about','shop','merch','comingsoon','privacy','terms'];
+  const TEMPORARY_BOOK_TWO_COVER = '/manus-storage/from-arbitrage-to-ownership-cover-web_47eb703b.webp';
+
+  function applyTemporaryBookTwoCover() {
+    const covers = document.querySelectorAll(
+      '[data-key="books/arbitrage-cover"], #page-shop img[alt="From Arbitrage To Ownership cover"]'
+    );
+    covers.forEach(cover => {
+      cover.src = TEMPORARY_BOOK_TWO_COVER;
+      cover.alt = 'From Arbitrage to Ownership by Mekiel Mitchell book cover';
+      cover.decoding = 'async';
+    });
+  }
 
   function showPage(name) {
     if (!PAGES.includes(name)) name = 'home';
@@ -2772,6 +2785,7 @@
 
   // Deep-link on load (e.g. yoursite.com/#/shop)
   window.addEventListener('DOMContentLoaded', () => {
+    applyTemporaryBookTwoCover();
     showPageFromHash();
     renderCart();
     const bookingDate = document.getElementById('bookingDate');
@@ -3060,17 +3074,6 @@
     const form = document.getElementById('bookingFormWrap');
     form.hidden = !show;
     if (show) form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function handleBookingPreview(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const status = document.getElementById('bookingPreviewStatus');
-    if (!form.reportValidity()) return false;
-    const honeypot = form.elements.namedItem('_honey');
-    if (honeypot && honeypot.value) return false;
-    status.textContent = 'Preview complete — the form is valid. Email delivery remains paused until you approve a replacement delivery method.';
-    return false;
   }
 
   function handleKitForm(e, purpose) {

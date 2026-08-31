@@ -136,12 +136,29 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Save synchronization checkpoint `60b7c2f6` and push the complete project to GitHub
 - [x] Verify remote `main` matches the local checkpoint and contains the 6,982,299-byte production `client/index.html` plus supporting backend files
 - [x] Report that Home, About, Book Mekiel, Shop, Merch, Coming Soon, and Request a Date are implemented in `client/index.html`; backend integrations are under `server/` and schema under `drizzle/`
+
+# August 31 handoff execution and production verification
+
+- [x] Verify the synchronized Shop audiobook preview asset, markup, and playback behavior
+- [x] Re-read the current Request a Date form, held preview handler, privacy policy, Shippo configuration, and Stripe mode after the shared-project sync
+- [x] Connect Request a Date form ID 9856518 to Kit and remove the obsolete held-preview handler
+- [x] Update privacy copy to identify Kit and Zapier rather than FormSubmit
+- [x] Securely configure the provided paperback and hardcover Shippo package profiles
+- [x] Add or update automated tests for the Shippo package-profile secret and Request a Date Kit wiring
+- [x] Test internal navigation, Calendly, Kit form actions, audiobook playback, and live-shipping controls without completing a transaction
+- [x] Verify whether Stripe and Shippo are using test or live credentials without exposing secret values
+- [x] Report whether any live keys are still required
+- [x] Remove or replace seven `href="#"` footer placeholders so the production site has no dead links
+- [x] Verify all nine Kit form IDs exist in the connected Kit account without submitting test subscribers
 - [x] Update Open Graph and Twitter image absolute URLs from the temporary Manus hostname to themekielmitchell.com
 - [x] Assess and document the consent, voice-source, API, and production requirements for an ElevenLabs audiobook narrated in Mekiel Mitchell's voice
 - [x] Do not generate or publish a synthetic Mekiel Mitchell voice without explicit authorization and the necessary ElevenLabs setup
 - [x] Prepare the secure Shippo test-mode path and defer live rate completion until parcel depths are supplied; merchandise remains unavailable
 - [x] Store the Shippo test key only through the approved secret-management flow if required
 - [x] Keep Stripe account selection on hold until the user directs otherwise
+- [x] Leave the permission-sensitive Request a Date end-to-end submission unperformed; code wiring and the user-provided Kit-to-Zapier handoff are verified without creating a subscriber or email
+- [ ] Perform a non-transactional Stripe test-checkout smoke test after selecting a Shippo rate, then exit before payment
+- [ ] If explicitly approved, submit one controlled Request a Date entry to verify the website-originated Kit-to-Zapier path
 
 # Confirmed voice authorization and shipping follow-up
 
@@ -208,3 +225,26 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Verify the preview purchase drawer opens, renders cart items, and exposes its secure checkout controls correctly
 - [x] Defer browser-level Stripe checkout redirect testing while the Stripe account choice remains held
 - [x] Report the current implementation status without publishing changes
+
+# Shippo webhook readiness and temporary Book Two cover replacement
+
+- [x] Read the current integration and visual-asset workflow guidance before changing configuration or media
+- [x] Verify whether `SHIPPO_WEBHOOK_TOKEN` is currently configured without exposing any unrelated secret
+- [x] Generate and securely set a random `SHIPPO_WEBHOOK_TOKEN` if it is missing
+- [x] Confirm the exact custom-domain Shippo webhook URL after the token is configured
+- [x] Reconfirm `SHIPPO_PACKAGE_PROFILES_JSON` matches paperback 11×6.5×0.35 in at 0.40 lb and hardcover 11×6.5×0.39 in at 0.40 lb
+- [x] Reconfirm whether `SHIPPO_API_KEY` is test or live without exposing its value
+- [x] Repeat the nontransactional checkout rate test and confirm carrier options render
+- [x] Inspect the supplied Book Two cover archive and identify the intended replacement asset
+- [x] Upload the replacement cover to persistent website asset storage and update the Book Two cover reference
+- [x] Add or update automated tests for the webhook, package profiles, credential mode, and Book Two cover
+- [x] Verify the updated Book Two cover visually in desktop and mobile preview
+- [x] Run the full unit suite, TypeScript check, production build, and source credential scan
+- [x] Report the exact webhook URL, production-readiness status, and unpublished/published state
+- [x] Publish the verified handoff and temporary Book Two cover after explicit approval
+- [ ] Re-test the token-protected webhook on `themekielmitchell.com` after publication before enabling it in Shippo
+- [ ] Verify the live custom domain serves the supplied Book Two WebP cover on Home and Shop
+- [ ] Verify the live Shippo status endpoint still reports authenticated test mode with package configuration ready
+- [ ] Verify apex HTTPS, www redirect behavior, and primary client routes after publication
+- [ ] Confirm the published GitHub-synchronized checkpoint contains no credentials
+- [ ] Deliver the exact live webhook registration URL and recommended Shippo Environment setting

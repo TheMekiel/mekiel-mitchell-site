@@ -37,3 +37,23 @@
 - [x] Deliver the complete Kit email and social-sharing asset set to the user
 - [x] Finalize the HTML email template with a self-contained header and no unresolved logo URL placeholder
 - [x] Re-validate the finalized Kit email template and handoff instructions
+- [x] Identify the opening-page portrait target and confirm the two user-supplied attachments as the requested portrait references
+- [x] Correct the first-line opening-page tenure copy to 21 years in preview only
+- [x] Replace the opening-page portrait with the supplied face in a retained blue suit and smaller wood-grain glasses, in preview only
+- [x] Run relevant tests and visually verify the preview without publishing
+- [x] Present the preview for explicit user approval before creating any checkpoint
+- [x] Generate and validate the requested edited hero portrait before integrating it into the opening-page preview
+- [x] Render a social-preview image that retains the blue suit and skyline, uses the supplied home-page face, has smaller wood-grain glasses, and reads 21 years
+- [x] Update the opening-page Open Graph and Twitter descriptions to state 21 years in the unpublished preview
+- [x] Replace the opening-page social-preview image reference with the approved edited portrait only after visual verification
+- [x] Confirm the user-supplied attachments, rather than a distinct home-page file, are the intended portrait references
+- [x] Confirm no visible on-page 20-year line remains and update the opening-page textual metadata to 21 years
+- [x] Visually validate the generated hero and social-preview images for identity, suit, wood-grain glasses, and 21-year text before approval
+- [x] Document that the generated portrait assets were reviewed before requesting user approval
+- [x] Refine the preview regression test to inspect only relevant opening-page text and retry validation within the available memory budget
+- [x] Provide the generated hero and social-preview images as direct approval artifacts before publication
+- [x] Finalize the user-approved hero portrait in the opening-page preview without publishing
+- [x] Re-validate the 21-year preview copy and approved hero asset
+- [ ] Request separate explicit confirmation before saving a checkpoint that would publish the approved preview
+- [ ] Save the user-approved 21-year opening-page hero update as a published checkpoint
+- [ ] Verify the published preview and social metadata on the live domain

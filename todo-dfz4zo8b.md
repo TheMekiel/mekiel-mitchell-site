@@ -81,7 +81,7 @@
 - [x] Create practical social-card cache refresh instructions for the restored website image
 - [x] Verify the main website remains unchanged
 - [x] Correct the standalone opening-page regression assertion for the existing uppercase HTML doctype and re-run validation
-- [ ] Deliver the separate opening-page HTML copy, Kit-ready hero image, and social-cache guide
+- [x] Deliver the separate opening-page HTML copy, Kit-ready hero image, and social-cache guide
 - [x] Replace the standalone opening-page social-preview reference with the text-free blue-suit hero asset
 - [x] Re-run the standalone opening-page regression test after correcting the separate hero reference
 - [x] Inspect the standalone opening-page HTML copy to confirm it uses the correct blue-suit hero asset

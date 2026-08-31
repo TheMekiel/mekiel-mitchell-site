@@ -75,3 +75,13 @@
 - [x] Record persistent evidence that both custom domains serve the restored original website experience
 - [x] Confirm the restoration-verification file records both custom domains after checkpoint 74aef8c4
 - [x] Read back the final restoration-verification record before closing the restoration task
+- [x] Confirm the separate opening-page HTML copy and unreferenced blue-suit hero source are available
+- [x] Apply the blue-suit image only to the separate opening-page HTML copy without changing the main website
+- [x] Export a Kit-optimized blue-suit hero image while preserving all image content
+- [x] Create practical social-card cache refresh instructions for the restored website image
+- [x] Verify the main website remains unchanged
+- [x] Correct the standalone opening-page regression assertion for the existing uppercase HTML doctype and re-run validation
+- [ ] Deliver the separate opening-page HTML copy, Kit-ready hero image, and social-cache guide
+- [x] Replace the standalone opening-page social-preview reference with the text-free blue-suit hero asset
+- [x] Re-run the standalone opening-page regression test after correcting the separate hero reference
+- [x] Inspect the standalone opening-page HTML copy to confirm it uses the correct blue-suit hero asset

@@ -13,6 +13,8 @@ const kitEmailTemplate = new URL("../project-files/kit-email-template.html", imp
 const kitPrimaryButtonCss = new URL("../project-files/kit-primary-button.css", import.meta.url);
 const kitHandoffGuide = new URL("../project-files/kit-handoff-guide.md", import.meta.url);
 const kitSocialSharingImage = new URL("../project-files/kit-social-sharing-og.jpg", import.meta.url);
+const socialCacheGuide = new URL("../project-files/social-card-cache-refresh.md", import.meta.url);
+const kitBlueSuitHeroGuide = new URL("../project-files/kit-blue-suit-hero-upload.md", import.meta.url);
 const openingPageSource = new URL("../client/index.html", import.meta.url);
 const openingPageCopy = new URL("../project-files/opening-page.html", import.meta.url);
 
@@ -31,7 +33,7 @@ function readJpegDimensions(buffer: Buffer) {
 }
 
 describe("saved site asset copies", () => {
-  it("preserves byte-identical copies of the favicon and original opening page", async () => {
+  it("preserves the standalone favicon copy and original live website source", async () => {
     const [sourceFavicon, copiedFavicon, sourcePage, copiedPage] = await Promise.all([
       readFile(faviconSource),
       readFile(faviconCopy),
@@ -40,7 +42,8 @@ describe("saved site asset copies", () => {
     ]);
 
     expect(copiedFavicon.equals(sourceFavicon)).toBe(true);
-    expect(copiedPage).toBe(sourcePage);
+    expect(copiedPage).toContain("<!DOCTYPE html>");
+    expect(sourcePage).toContain("from 20 years inside to a multi-million dollar real estate portfolio");
   });
 
   it("keeps generated portrait drafts as separate assets, not live page references", async () => {
@@ -53,6 +56,19 @@ describe("saved site asset copies", () => {
     expect(metadata).toContain('name="twitter:image" content="https://themekielmitchell.com/og-image.jpg"');
     expect(openingPage).not.toContain("opening-page-social-preview-21-years-draft_993eaf78.png");
     expect(openingPage).not.toContain("opening-page-hero-portrait-preview_0d8e3223.png");
+  });
+
+  it("uses the blue-suit portrait only in the standalone opening-page copy", async () => {
+    const [mainWebsite, standaloneOpeningPage] = await Promise.all([
+      readFile(openingPageSource, "utf8"),
+      readFile(openingPageCopy, "utf8"),
+    ]);
+
+    const blueSuitAsset = "opening-page-hero-portrait-preview_0d8e3223.png";
+
+    expect(standaloneOpeningPage).toContain(blueSuitAsset);
+    expect(standaloneOpeningPage).toContain("object-position: 64% center");
+    expect(mainWebsite).not.toContain(blueSuitAsset);
   });
 
   it("keeps the Kit upload favicon as a 180px square PNG", async () => {
@@ -123,5 +139,18 @@ describe("saved site asset copies", () => {
     expect(socialImage.byteLength).toBeLessThan(25 * 1024 * 1024);
     expect(handoffGuide).toContain("kit-social-sharing-og.jpg");
     expect(handoffGuide).toContain("kit-email-template.html");
+  });
+
+  it("documents cache refresh and the separate Kit upload without changing the live website", async () => {
+    const [cacheGuide, blueSuitGuide] = await Promise.all([
+      readFile(socialCacheGuide, "utf8"),
+      readFile(kitBlueSuitHeroGuide, "utf8"),
+    ]);
+
+    expect(cacheGuide).toContain("https://themekielmitchell.com/");
+    expect(cacheGuide).toContain("Meta’s Sharing Debugger");
+    expect(cacheGuide).toContain("LinkedIn Post Inspector");
+    expect(blueSuitGuide).toContain("kit-landing-blue-suit-hero.jpg");
+    expect(blueSuitGuide).toContain("1920 × 1080");
   });
 });

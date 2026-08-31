@@ -1539,7 +1539,12 @@
   }
   .shipping-address-grid select option { color: var(--navy-950); }
   .shipping-address-full { grid-column: 1 / -1; }
-  .shipping-rate-btn { width: 100%; margin-top: 9px; padding: 11px; border: 1px solid var(--gold-500); background: transparent; color: var(--gold-500); cursor: pointer; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+  .shipping-rate-btn { width: 100%; margin-top: 9px; padding: 11px; border: 1px solid var(--gold-500); background: transparent; color: var(--gold-500); cursor: pointer; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 160ms cubic-bezier(.23,1,.32,1), background-color 160ms cubic-bezier(.23,1,.32,1); }
+  .shipping-rate-btn:disabled { cursor: wait; opacity: .76; background: rgba(212,175,55,.08); }
+  .shipping-rate-spinner { display: none; width: 12px; height: 12px; flex: 0 0 12px; border: 2px solid rgba(212,175,55,.35); border-top-color: var(--gold-500); border-radius: 50%; }
+  .shipping-rate-btn.is-loading .shipping-rate-spinner { display: inline-block; animation: shipping-rate-spin 700ms linear infinite; }
+  @keyframes shipping-rate-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .shipping-rate-btn.is-loading .shipping-rate-spinner { animation-duration: 1400ms; } }
   .shipping-rates { display: grid; gap: 7px; margin-top: 10px; }
   .shipping-rate-option { display: grid; grid-template-columns: auto 1fr auto; gap: 9px; align-items: center; border: 1px solid rgba(255,255,255,.12); padding: 10px; font-size: 11.5px; cursor: pointer; }
   .shipping-rate-option.selected { border-color: var(--gold-500); background: rgba(212,175,55,.08); }
@@ -1644,8 +1649,11 @@
         <input id="shipZip" autocomplete="shipping postal-code" placeholder="ZIP code" />
         <select id="shipCountry" autocomplete="shipping country"><option value="US">United States</option></select>
       </div>
-      <button type="button" class="shipping-rate-btn" id="shippingRateButton" onclick="quoteShippingRates()">Get live rates</button>
-      <div class="shipping-status" id="shippingStatus" role="status" aria-live="polite"></div>
+      <button type="button" class="shipping-rate-btn" id="shippingRateButton" onclick="quoteShippingRates()" aria-describedby="shippingStatus" aria-busy="false">
+        <span class="shipping-rate-spinner" aria-hidden="true"></span>
+        <span class="shipping-rate-button-label">Get live rates</span>
+      </button>
+      <div class="shipping-status" id="shippingStatus" role="status" aria-live="polite" aria-atomic="true"></div>
       <div class="shipping-rates" id="shippingRates"></div>
     </div>
     <div class="cart-total-row">
@@ -2746,15 +2754,15 @@
      PAGE ROUTER
      ============================================================ */
   const PAGES = ['home','about','shop','merch','comingsoon','privacy','terms'];
-  const TEMPORARY_BOOK_TWO_COVER = '/manus-storage/from-arbitrage-to-ownership-cover-web_47eb703b.webp';
+  const APPROVED_BOOK_TWO_COVER = '/manus-storage/from-rental-arbitrage-to-ownership-approved-cover_cadb0d05.png';
 
-  function applyTemporaryBookTwoCover() {
+  function applyApprovedBookTwoCover() {
     const covers = document.querySelectorAll(
       '[data-key="books/arbitrage-cover"], #page-shop img[alt="From Arbitrage To Ownership cover"]'
     );
     covers.forEach(cover => {
-      cover.src = TEMPORARY_BOOK_TWO_COVER;
-      cover.alt = 'From Arbitrage to Ownership by Mekiel Mitchell book cover';
+      cover.src = APPROVED_BOOK_TWO_COVER;
+      cover.alt = 'From Rental Arbitrage to Ownership by Mekiel Mitchell approved book cover';
       cover.decoding = 'async';
     });
   }
@@ -2785,7 +2793,7 @@
 
   // Deep-link on load (e.g. yoursite.com/#/shop)
   window.addEventListener('DOMContentLoaded', () => {
-    applyTemporaryBookTwoCover();
+    applyApprovedBookTwoCover();
     showPageFromHash();
     renderCart();
     const bookingDate = document.getElementById('bookingDate');
@@ -2815,6 +2823,7 @@
      ============================================================ */
   const CART_KEY = 'mm_cart_v1';
   let selectedShippingQuote = null;
+  let shippingRateRequestInFlight = false;
 
   function getCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
@@ -2960,13 +2969,21 @@
   }
 
   async function quoteShippingRates() {
+    if (shippingRateRequestInFlight) return;
+    shippingRateRequestInFlight = true;
     const cart = getCart();
     const status = document.getElementById('shippingStatus');
     const ratesEl = document.getElementById('shippingRates');
     const button = document.getElementById('shippingRateButton');
-    if (status) status.textContent = 'Requesting current carrier rates…';
+    const buttonLabel = button?.querySelector('.shipping-rate-button-label');
+    if (status) status.textContent = 'Fetching live carrier rates. This can take a few seconds…';
     if (ratesEl) ratesEl.innerHTML = '';
-    if (button) button.disabled = true;
+    if (button) {
+      button.disabled = true;
+      button.classList.add('is-loading');
+      button.setAttribute('aria-busy', 'true');
+    }
+    if (buttonLabel) buttonLabel.textContent = 'Fetching live rates…';
     selectedShippingQuote = null;
     renderCart();
     try {
@@ -2977,7 +2994,7 @@
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Unable to calculate shipping rates.');
-      if (status) status.textContent = payload.testMode ? 'Test rates returned. Select one to continue.' : 'Select a live carrier rate.';
+      if (status) status.textContent = payload.testMode ? 'Test rates are ready. Select one to continue.' : 'Live carrier rates are ready. Select one to continue.';
       if (ratesEl) {
         ratesEl.innerHTML = payload.rates.map((rate, index) => `
           <label class="shipping-rate-option" data-rate-index="${index}">
@@ -2990,7 +3007,13 @@
     } catch (error) {
       if (status) status.textContent = error instanceof Error ? error.message : 'Unable to calculate shipping rates.';
     } finally {
-      if (button) button.disabled = false;
+      shippingRateRequestInFlight = false;
+      if (button) {
+        button.disabled = false;
+        button.classList.remove('is-loading');
+        button.setAttribute('aria-busy', 'false');
+      }
+      if (buttonLabel) buttonLabel.textContent = 'Get live rates';
     }
   }
 

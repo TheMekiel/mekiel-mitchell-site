@@ -248,3 +248,76 @@ The user and sandbox browser both received a CloudFront HTTP 403 from the offici
 - [x] Verify apex HTTPS, www redirect behavior, and primary client routes after publication
 - [x] Confirm the published GitHub-synchronized checkpoint contains no credentials
 - [x] Deliver the exact live webhook registration URL and recommended Shippo Environment setting
+
+# Production Shippo, Stripe, and shipping-rate loading experience
+
+- [x] Read the applicable safety and integration guidance before changing production payment or shipping credentials
+- [x] Validate the supplied Shippo credential format and authenticate it without exposing the value
+- [x] Validate the supplied Stripe credential type and identify every production key required for real checkout and webhooks
+- [ ] Replace only valid production credentials through secure environment configuration; Shippo is live, while Stripe is blocked until valid `sk_live_` or `rk_live_`, `pk_live_`, and live `whsec_` values are supplied through the supported Stripe integration flow
+- [x] Add a visible spinner and accessible status message while carrier rates are being fetched
+- [x] Prevent repeated rate requests while the current request is in progress
+- [x] Add or update Vitest coverage for production credential mode and the loading-state behavior
+- [x] Run the full test suite, TypeScript validation, production build, and credential-leak scan
+- [x] Verify the loading experience and returned carrier options in the browser without creating a charge or label
+- [ ] Publish only after production credentials and the checkout-loading change have passed validation
+- [ ] Reconfirm the live custom-domain integration modes and webhook behavior after publication
+
+# Read-only Stripe connector test and capability brief
+
+- [x] Inspect the active Stripe connector configuration without exposing credentials
+- [x] List the connector’s available operations and confirm exact read-only tool parameters
+- [x] Fetch non-sensitive Stripe account and balance information through read-only calls
+- [x] Fetch representative read-only product, customer, payment, invoice, and subscription list summaries where supported
+- [x] Avoid creating, updating, refunding, charging, or deleting any Stripe resource during the connector test
+- [x] Compare the connector account mode with the website’s current managed Stripe environment mode
+- [x] Present the fetched data in a concise table and explain the connector’s supported business workflows
+
+# Website-managed live Stripe verification
+
+- [x] Reload the latest managed Stripe configuration after the user’s live-mode update
+- [x] Confirm the server credential mode without exposing its value; the website environment still reports test mode
+- [x] Confirm the browser publishable-key mode matches the server mode; both still report test mode
+- [x] Confirm the Stripe webhook signing secret remains configured
+- [x] Authenticate to the configured Stripe account with a read-only API test
+- [x] Confirm the public custom domain remains accessible without creating a Checkout Session or charge
+- [x] Report that the live connector is authorized but website-managed production payment mode is not yet verified
+
+# Live Stripe promotion-code diagnostic
+
+- [x] Read the required financial safety guidance before inspecting live Stripe discount configuration
+- [x] Confirm the authorized live Stripe account context without exposing credentials
+- [x] Locate the exact read-only Stripe promotion-code and coupon operations
+- [x] Search the live account for promotion code `MANUS100OFF9HD`
+- [x] Inspect active state, expiration, redemption count and limit, customer restrictions, minimum amount, and first-time restrictions
+- [x] Inspect the underlying coupon’s validity, duration, percentage or amount, and product applicability
+- [x] Compare the promotion-code restrictions with the website’s Checkout Session configuration
+- [x] Do not create, update, redeem, or delete any Stripe discount or payment object
+- [x] Report the rejection cause and the safest next step for live-checkout verification
+
+# Public www-domain access issue
+
+- [x] Check public DNS resolution for the apex and `www` hostnames
+- [x] Verify TLS certificates, HTTP status, and redirect destination for both hostnames
+- [x] Compare the returned HTML title and content with the published Mekiel Mitchell website
+- [x] Open the exact `www` address in a public browser session and confirm the actual rendered page
+- [x] Determine that the reported message came from search/AI navigation rather than DNS, TLS, redirects, or website content
+- [x] Provide a direct verified URL and exact browser/cache recovery steps
+
+# Live Stripe transaction verification and approved Book Two cover
+
+- [x] Reconfirm the website-managed Stripe server and publishable credential modes; both still report test mode after synchronization
+- [x] Reconfirm the webhook signing secret remains configured and Stripe API authentication passes
+- [x] Recheck `MANUS100OFF9HD` in the live account and confirm it remains active and unrestricted
+- [x] Determine the $57 digital bundle as the safest future live-test item because 99% off leaves a $0.57 merchandise charge before any applicable tax
+- [x] Inspect the approved Book Two PDF and render the correct cover page without altering the artwork
+- [x] Upload the approved cover to persistent website asset storage
+- [x] Replace every temporary Book Two cover reference on Home and Shop with the approved asset
+- [x] Add or update automated coverage for the approved cover and checkout configuration
+- [x] Verify the approved cover visually on desktop and mobile preview
+- [x] Run the complete test suite, TypeScript validation, production build, link audit, and credential scan
+- [ ] Open a new live Checkout Session and apply `MANUS100OFF9HD` without submitting payment
+- [ ] Show the exact final charge and obtain explicit user confirmation before payment submission
+- [ ] Complete the user-authorized low-value live payment and verify the Stripe result without purchasing a shipping label
+- [ ] Publish the approved cover and validated payment-readiness update after checks pass
+- [ ] Verify the live custom domain, coupon flow, webhook readiness, and approved cover after publication

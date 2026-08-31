@@ -23,10 +23,11 @@ describe("production site links", () => {
     expect(html).toContain("/manus-storage/group-home-funding-playbook-audiobook-preview_1ebd3633.mp3");
   });
 
-  it("applies the supplied temporary Book Two cover without cropping it", () => {
-    expect(html).toContain("/manus-storage/from-arbitrage-to-ownership-cover-web_47eb703b.webp");
-    expect(html).toContain("From Arbitrage to Ownership by Mekiel Mitchell book cover");
+  it("applies the supplied approved Book Two cover without cropping it", () => {
+    expect(html).toContain("/manus-storage/from-rental-arbitrage-to-ownership-approved-cover_cadb0d05.png");
+    expect(html).toContain("From Rental Arbitrage to Ownership by Mekiel Mitchell approved book cover");
     expect(html).toContain("object-fit: contain");
-    expect(html).toContain("applyTemporaryBookTwoCover();");
+    expect(html).toContain("applyApprovedBookTwoCover();");
+    expect(html).not.toContain("/manus-storage/from-arbitrage-to-ownership-cover-web_47eb703b.webp");
   });
 });

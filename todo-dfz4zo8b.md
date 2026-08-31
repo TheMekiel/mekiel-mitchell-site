@@ -54,6 +54,11 @@
 - [x] Provide the generated hero and social-preview images as direct approval artifacts before publication
 - [x] Finalize the user-approved hero portrait in the opening-page preview without publishing
 - [x] Re-validate the 21-year preview copy and approved hero asset
-- [ ] Request separate explicit confirmation before saving a checkpoint that would publish the approved preview
-- [ ] Save the user-approved 21-year opening-page hero update as a published checkpoint
-- [ ] Verify the published preview and social metadata on the live domain
+- [x] Request separate explicit confirmation before saving a checkpoint that would publish the approved preview
+- [x] Save the user-approved 21-year opening-page hero update as a published checkpoint
+- [x] Verify the published preview and social metadata on the live custom domains
+- [x] Re-check both custom domains for the full 21-year description and Open Graph/Twitter image metadata
+- [x] Confirm each custom domain serves the approved opening-page hero asset reference
+- [x] Record the exact live-domain verification evidence after propagation
+- [x] Perform a final live custom-domain visual verification of the approved opening-page hero
+- [x] Confirm the live-domain verification evidence file exists in the project assets

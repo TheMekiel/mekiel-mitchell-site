@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { normalizeCheckoutItems } from "./stripeProducts";
 import { verifyShippingQuote } from "./shippo";
 import { upsertCommerceOrder } from "./db";
+import { logPurchaseDeliveryFailure, sendPurchaseDeliveryEmail } from "./kitPurchaseDelivery";
 
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -62,6 +63,21 @@ export function registerStripeRoutes(app: Express) {
         shippoRateId: session.metadata?.shippo_rate_id || null,
         fulfillmentStatus: session.metadata?.shippo_rate_id ? "ready" : "pending",
       });
+      try {
+        const deliveryResult = await sendPurchaseDeliveryEmail(session);
+        logPurchaseDeliveryFailure(session.id, deliveryResult);
+        if (deliveryResult.ok) {
+          console.log("[Kit] Purchase delivery queued", {
+            sessionId: session.id,
+            formId: deliveryResult.formId,
+          });
+        }
+      } catch (error) {
+        console.error(
+          `[Kit] Purchase delivery failed for ${session.id}`,
+          error instanceof Error ? error.message : error,
+        );
+      }
       console.log("[Stripe] Checkout completed", {
         eventId: event.id,
         sessionId: session.id,

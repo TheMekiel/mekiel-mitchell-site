@@ -1695,12 +1695,12 @@
     <button class="modal-close" onclick="closePurchaseThanks()">×</button>
     <span class="label">Order received</span>
     <h3>Thank you for your <em>purchase</em>.</h3>
-    <p>Stripe has received your order. Enter your email below if you would also like product-delivery and launch updates from Kit.</p>
+    <p>Stripe has received your order. Your secure download links are below, and we are also sending them to the email address used at checkout. You can opt in to launch updates from Kit below.</p>
     <div class="purchase-download-status" id="purchaseDownloadStatus" role="status" aria-live="polite"></div>
     <div class="purchase-downloads" id="purchaseDownloads"></div>
-    <form class="modal-form" action="https://app.kit.com/forms/9849297/subscriptions" method="post" data-kit-form data-kit-purpose="Thank you for your purchase" onsubmit="return handleKitForm(event, 'Thank you for your purchase')">
+    <form class="modal-form" action="https://app.kit.com/forms/9827586/subscriptions" method="post" data-kit-form data-kit-purpose="Website Subscribers" onsubmit="return handleKitForm(event, 'Website Subscribers')">
       <input type="email" name="email_address" placeholder="your@email.com" required />
-      <button type="submit">Get Updates →</button>
+      <button type="submit">Get Launch Updates →</button>
     </form>
   </div>
 </div>
@@ -2639,7 +2639,7 @@
         <p>We use trusted third parties to operate this site and are not responsible for their independent privacy practices, which are governed by their own policies:</p>
         <ul>
           <li><strong>Stripe</strong> — secure payment processing.</li>
-          <li><strong>Kit.com (ConvertKit)</strong> — email newsletter, waitlist, and speaking-request form delivery.</li>
+          <li><strong>Kit.com (ConvertKit)</strong> — purchase-delivery emails, email newsletter, waitlist, and speaking-request form delivery.</li>
           <li><strong>Shippo</strong> — live carrier rates, shipping labels, and shipment tracking for physical orders.</li>
           <li><strong>Calendly</strong> — strategy-call scheduling.</li>
           <li><strong>Zapier</strong> — routes speaking-request notifications from Kit to our business inbox.</li>
@@ -3077,7 +3077,13 @@
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Downloads are not available yet.');
       container.innerHTML = payload.downloads.map(download => `<a href="${download.url}" download="${download.filename}">${download.label} →</a>`).join('');
-      status.textContent = payload.downloads.length ? 'Your secure download links are ready.' : 'This order contains no digital products.';
+      if (!payload.downloads.length) {
+        status.textContent = 'This order contains no digital products.';
+      } else if (payload.emailDelivery) {
+        status.textContent = 'Your secure download links are ready. A copy was also sent to your checkout email.';
+      } else {
+        status.textContent = 'Your secure download links are ready. Save these links while email delivery is being configured.';
+      }
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : 'Unable to prepare downloads.';
     }

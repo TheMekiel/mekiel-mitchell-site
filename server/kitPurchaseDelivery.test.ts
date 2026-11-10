@@ -14,6 +14,7 @@ import {
 import {
   buildPurchaseDownloadsUrl,
   PURCHASE_TAGS,
+  PURCHASE_TAG_IDS,
   syncKitPurchaseDelivery,
 } from "./kitPurchaseDelivery";
 import { registerStripeRoutes } from "./stripe";
@@ -145,13 +146,6 @@ function mockKit(
         };
         return json({ subscriber });
       }
-      if (path === "/v4/tags" && request.method === "GET")
-        return page("tags", tags);
-      if (path === "/v4/tags" && request.method === "POST") {
-        const tag = { id: tags.length + 10, name: String(request.body.name) };
-        tags.push(tag);
-        return json({ tag }, 201);
-      }
       if (
         /^\/v4\/tags\/\d+\/subscribers\/42$/.test(path) &&
         request.method === "POST"
@@ -229,10 +223,9 @@ describe("Kit paid-order handoff", () => {
     ).toEqual([
       "GET /v4/subscribers",
       "PUT /v4/subscribers/42",
-      "GET /v4/tags",
-      "POST /v4/tags/1/subscribers/42",
-      "POST /v4/tags/2/subscribers/42",
-      "POST /v4/tags/3/subscribers/42",
+      `POST /v4/tags/${PURCHASE_TAG_IDS.digital}/subscribers/42`,
+      `POST /v4/tags/${PURCHASE_TAG_IDS.physical}/subscribers/42`,
+      `POST /v4/tags/${PURCHASE_TAG_IDS.ebook}/subscribers/42`,
     ]);
     expect(api.requests[0].url.searchParams.get("email_address")).toBe(EMAIL);
     expect(api.requests[0].url.searchParams.get("status")).toBe("all");
@@ -273,7 +266,7 @@ describe("Kit paid-order handoff", () => {
       shipping_carrier: "UPS Ground",
     });
     expect(tagAdds(api.requests).map(request => request.url.pathname)).toEqual([
-      "/v4/tags/2/subscribers/42",
+      `/v4/tags/${PURCHASE_TAG_IDS.physical}/subscribers/42`,
     ]);
   });
 
@@ -427,38 +420,16 @@ describe("Kit paid-order handoff", () => {
     expect(api.requests.some(request => request.method === "POST")).toBe(false);
   });
 
-  it("finds later-page tags and creates only missing tags with exact en-dash labels", async () => {
-    const api = mockKit({
-      tags: [],
-      respond: request => {
-        if (request.url.pathname === "/v4/tags" && request.method === "GET") {
-          return request.url.searchParams.has("after")
-            ? page("tags", [existingTags[2]])
-            : page(
-                "tags",
-                [{ id: 99, name: "Purchased - Digital" }],
-                "tags+/="
-              );
-        }
-      },
-    });
+  it("uses the verified immutable tag IDs without listing or creating tags", async () => {
+    const api = mockKit({ tags: [] });
     await syncKitPurchaseDelivery(paidSession());
-    const lists = api.requests.filter(
-      request => request.url.pathname === "/v4/tags" && request.method === "GET"
+    expect(api.requests.some(request => request.url.pathname === "/v4/tags")).toBe(
+      false
     );
-    expect(lists).toHaveLength(2);
-    expect(lists[1].url.searchParams.get("after")).toBe("tags+/=");
-    expect(
-      api.requests
-        .filter(
-          request =>
-            request.url.pathname === "/v4/tags" && request.method === "POST"
-        )
-        .map(request => request.body)
-    ).toEqual([{ name: "Purchased – Digital" }]);
-    expect(tagAdds(api.requests).at(-1)?.url.pathname).toBe(
-      "/v4/tags/3/subscribers/42"
-    );
+    expect(tagAdds(api.requests).map(request => request.url.pathname)).toEqual([
+      `/v4/tags/${PURCHASE_TAG_IDS.digital}/subscribers/42`,
+      `/v4/tags/${PURCHASE_TAG_IDS.ebook}/subscribers/42`,
+    ]);
     expect(PURCHASE_TAGS.digital).toContain(" \u2013 ");
   });
 
@@ -554,6 +525,26 @@ describe("Kit paid-order handoff", () => {
     ).toBe(false);
   });
 
+  it("logs Kit failure diagnostics without logging the API key", async () => {
+    mockKit({
+      respond: request =>
+        request.method === "PUT"
+          ? json({ errors: ["field update failed"] }, 422)
+          : undefined,
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await expect(syncKitPurchaseDelivery(paidSession())).rejects.toThrow(
+      "Kit purchase handoff failed (HTTP 422)."
+    );
+    expect(warn).toHaveBeenCalledWith("[Kit] API request failed", {
+      method: "PUT",
+      path: "/subscribers/42",
+      status: 422,
+      body: JSON.stringify({ errors: ["field update failed"] }),
+    });
+    expect(JSON.stringify(warn.mock.calls)).not.toContain("mock-kit-key");
+  });
+
   it("does not tag when existing fields are ignored with API warnings", async () => {
     const api = mockKit({
       respond: request =>
@@ -570,7 +561,8 @@ describe("Kit paid-order handoff", () => {
   it("rejects incomplete tag adds rather than claiming a queued handoff", async () => {
     const api = mockKit({
       respond: request =>
-        request.url.pathname === "/v4/tags/3/subscribers/42"
+        request.url.pathname ===
+          `/v4/tags/${PURCHASE_TAG_IDS.ebook}/subscribers/42`
           ? json({ errors: ["raw Kit failure"] }, 500)
           : undefined,
     });
@@ -597,17 +589,19 @@ describe("Kit paid-order handoff", () => {
     );
   });
 
-  it("fails closed on malformed pagination instead of creating duplicate tags", async () => {
+  it("fails closed on malformed subscriber pagination", async () => {
     mockKit({
       respond: request =>
-        request.url.pathname === "/v4/tags"
+        request.url.pathname === "/v4/subscribers"
           ? json({
-              tags: [],
+              subscribers: [],
               pagination: { has_next_page: true, end_cursor: "" },
             })
           : undefined,
     });
-    await expect(syncKitPurchaseDelivery(paidSession())).rejects.toThrow(
+    await expect(
+      syncKitPurchaseDelivery(paidSession(), { applyPurchaseTags: false })
+    ).rejects.toThrow(
       "Kit returned an invalid pagination cursor."
     );
   });
@@ -743,7 +737,9 @@ describe("Stripe webhook and digital delivery contracts", () => {
     let fail = true;
     const api = mockKit({
       respond: request =>
-        fail && request.url.pathname === "/v4/tags/3/subscribers/42"
+        fail &&
+          request.url.pathname ===
+            `/v4/tags/${PURCHASE_TAG_IDS.ebook}/subscribers/42`
           ? json({ errors: ["failure"] }, 500)
           : undefined,
     });

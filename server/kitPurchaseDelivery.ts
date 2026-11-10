@@ -13,6 +13,12 @@ export const PURCHASE_TAGS = {
   ebook: "Purchased – GHFP eBook",
 } as const;
 
+export const PURCHASE_TAG_IDS = {
+  digital: 25680326,
+  physical: 25680370,
+  ebook: 25217102,
+} as const;
+
 type KitResponse = Record<string, unknown>;
 type KitSubscriber = {
   id: number;
@@ -84,9 +90,28 @@ async function kitRequest(
   } catch {
     throw new Error("Kit purchase handoff is temporarily unavailable.");
   }
-  // Never propagate provider response text, customer data, or secret URLs.
-  if (!response.ok)
+  if (!response.ok) {
+    let diagnostic = "";
+    try {
+      const body = (await response.clone().json()) as {
+        errors?: unknown;
+        warnings?: unknown;
+      };
+      diagnostic = JSON.stringify({
+        errors: Array.isArray(body.errors) ? body.errors : undefined,
+        warnings: Array.isArray(body.warnings) ? body.warnings : undefined,
+      });
+    } catch {
+      diagnostic = "non-json response";
+    }
+    console.warn("[Kit] API request failed", {
+      method: init.method || "GET",
+      path,
+      status: response.status,
+      body: diagnostic,
+    });
     throw new Error(`Kit purchase handoff failed (HTTP ${response.status}).`);
+  }
   try {
     const body: unknown = await response.json();
     if (!body || typeof body !== "object" || Array.isArray(body))
@@ -168,24 +193,19 @@ async function findOrCreateSubscriber(email: string): Promise<KitSubscriber> {
 }
 
 async function applyTags(subscriberId: number, names: string[]) {
-  const tags = await listKitRecords<KitTag>("/tags", "tags");
   for (const name of names) {
-    let tag = tags.find(candidate => candidate.name === name);
-    if (!tag) {
-      const payload = await kitRequest("/tags", {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      });
-      tag = payload.tag as KitTag | undefined;
-    }
-    // Exact labels matter, including spaces around the en dash. Kit creation
-    // is name-idempotent, including concurrent creates; never rename a tag.
-    if (!tag || tag.name !== name || !Number.isInteger(tag.id) || tag.id <= 0) {
-      throw new Error("Kit did not return the exact purchase tag.");
-    }
-    // Add on every paid order/retry (200 for already tagged). Never remove and
-    // re-add: that can duplicate automation entry and unrelated side effects.
-    await kitRequest(`/tags/${tag.id}/subscribers/${subscriberId}`, {
+    const tagId =
+      name === PURCHASE_TAGS.digital
+        ? PURCHASE_TAG_IDS.digital
+        : name === PURCHASE_TAGS.physical
+          ? PURCHASE_TAG_IDS.physical
+          : name === PURCHASE_TAGS.ebook
+            ? PURCHASE_TAG_IDS.ebook
+            : 0;
+    if (!tagId) throw new Error("Kit purchase tag mapping is incomplete.");
+    // Use the verified tag IDs directly. This avoids name/encoding drift and
+    // prevents a paid retry from creating a duplicate tag.
+    await kitRequest(`/tags/${tagId}/subscribers/${subscriberId}`, {
       method: "POST",
       body: JSON.stringify({}),
     });

@@ -1,8 +1,8 @@
 import express, { type Express, type Request } from "express";
 import Stripe from "stripe";
 import { normalizeCheckoutItems } from "./stripeProducts";
-import { verifyShippingQuote } from "./shippo";
-import { upsertCommerceOrder } from "./db";
+import { createShippoShipment, verifyShippingQuote } from "./shippo";
+import { getCommerceOrderBySessionId, upsertCommerceOrder } from "./db";
 import { syncKitPurchaseDelivery } from "./kitPurchaseDelivery";
 
 function getStripe() {
@@ -67,6 +67,39 @@ export function registerStripeRoutes(app: Express) {
         if (session.payment_status !== "paid")
           return res.json({ received: true });
         try {
+          const productInput = (session.metadata?.product_quantities
+            ? JSON.parse(session.metadata.product_quantities)
+            : session.metadata?.product_ids
+                ?.split(",")
+                .filter(Boolean)
+                .map(id => ({ id, qty: 1 }))) as unknown;
+          const existingOrder = await getCommerceOrderBySessionId(session.id);
+          const hasPhysicalItems = normalizeCheckoutItems(productInput).some(
+            item => item.product.category !== "digital"
+          );
+          let shippoShipmentId = existingOrder?.shippoShipmentId ?? null;
+          if (hasPhysicalItems && !shippoShipmentId) {
+            const shippingDetails = session.collected_information?.shipping_details;
+            if (!shippingDetails?.address || !shippingDetails.name) {
+              throw new Error("Paid physical order is missing shipping details.");
+            }
+            const shipment = await createShippoShipment(
+              productInput,
+              {
+                name: shippingDetails.name,
+                street1: shippingDetails.address.line1,
+                street2: shippingDetails.address.line2 || undefined,
+                city: shippingDetails.address.city,
+                state: shippingDetails.address.state,
+                zip: shippingDetails.address.postal_code,
+                country: shippingDetails.address.country,
+                phone: session.customer_details?.phone || undefined,
+                email: session.customer_details?.email || undefined,
+              },
+              `Mekiel Mitchell order ${session.id}`,
+            );
+            shippoShipmentId = shipment?.object_id ?? null;
+          }
           await upsertCommerceOrder({
             stripeCheckoutSessionId: session.id,
             stripePaymentIntentId:
@@ -78,9 +111,9 @@ export function registerStripeRoutes(app: Express) {
                 ? session.customer
                 : session.customer?.id,
             productIds: session.metadata?.product_ids || "",
-            shippoShipmentId: session.metadata?.shippo_shipment_id || null,
+            shippoShipmentId,
             shippoRateId: session.metadata?.shippo_rate_id || null,
-            fulfillmentStatus: session.metadata?.shippo_rate_id
+            fulfillmentStatus: shippoShipmentId || session.metadata?.shippo_rate_id
               ? "ready"
               : "pending",
           });
@@ -135,6 +168,9 @@ export function registerStripeRoutes(app: Express) {
           shippo_shipment_id: shippingQuote?.shipmentId || "",
           shipping_provider: shippingQuote?.provider || "",
           shipping_service: shippingQuote?.service || "",
+          product_quantities: JSON.stringify(
+            items.map(item => ({ id: item.id, qty: item.quantity }))
+          ),
         };
         const origin = getSafeOrigin(req);
         const session = await getStripe().checkout.sessions.create({

@@ -104,6 +104,17 @@ export async function upsertCommerceOrder(order: InsertCommerceOrder): Promise<v
   });
 }
 
+export async function getCommerceOrderBySessionId(stripeCheckoutSessionId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available.");
+  const result = await db
+    .select()
+    .from(commerceOrders)
+    .where(eq(commerceOrders.stripeCheckoutSessionId, stripeCheckoutSessionId))
+    .limit(1);
+  return result[0];
+}
+
 export async function updateCommerceOrderTracking(input: {
   shippoTransactionId: string;
   trackingNumber?: string | null;

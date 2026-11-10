@@ -33,4 +33,5 @@ The earlier handoff implementation made no live Kit subscriber/tag/form/email ch
 
 - [x] Archive temporary live-checkout, Stripe, Shippo, and webhook verification notes under `project-files/archive/repair-notes-2026-11-10/`.
 - [x] Confirm the current Stripe-to-Shippo gap: checkout stores the Shippo rate/shipment IDs, but the paid webhook does not create a Shippo transaction or pass the Stripe shipping address into Shippo.
-- [ ] Add automatic Shippo transaction creation after a paid physical order, pending user approval of the fulfillment behavior.
+- [x] Add automatic Shippo shipment creation after a paid physical order, using Stripe-collected address/order data; do not purchase a label automatically.
+- [x] Confirm no direct email is currently sent to `info@themekielmitchell.com`; adding that notice requires a configured transactional email provider.

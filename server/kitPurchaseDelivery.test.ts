@@ -24,6 +24,7 @@ const providerMocks = vi.hoisted(() => ({
   constructEvent: vi.fn(),
   retrieveSession: vi.fn(),
   createSession: vi.fn(),
+  createShippoShipment: vi.fn(),
   upsertOrder: vi.fn(),
   signedUrl: vi.fn(),
 }));
@@ -38,9 +39,15 @@ vi.mock("stripe", () => ({
     };
   },
 }));
-vi.mock("./db", () => ({ upsertCommerceOrder: providerMocks.upsertOrder }));
+vi.mock("./db", () => ({
+  getCommerceOrderBySessionId: vi.fn().mockResolvedValue(undefined),
+  upsertCommerceOrder: providerMocks.upsertOrder,
+}));
 vi.mock("./storage", () => ({ storageGetSignedUrl: providerMocks.signedUrl }));
-vi.mock("./shippo", () => ({ verifyShippingQuote: vi.fn() }));
+vi.mock("./shippo", () => ({
+  createShippoShipment: providerMocks.createShippoShipment,
+  verifyShippingQuote: vi.fn(),
+}));
 
 const nativeFetch = globalThis.fetch;
 const EMAIL = "buyer+paid@example.com";
@@ -75,6 +82,19 @@ function paidSession(
     payment_status: "paid",
     metadata: { product_ids: productIds },
     customer_details: { email: EMAIL, name: "Buyer Example" },
+    collected_information: {
+      shipping_details: {
+        name: "Buyer Example",
+        address: {
+          line1: "123 Main Street",
+          line2: null,
+          city: "Atlanta",
+          state: "GA",
+          postal_code: "30303",
+          country: "US",
+        },
+      },
+    },
     ...overrides,
   } as unknown as Stripe.Checkout.Session;
 }
@@ -177,6 +197,10 @@ beforeEach(() => {
   providerMocks.constructEvent.mockReset();
   providerMocks.retrieveSession.mockReset();
   providerMocks.createSession.mockReset();
+  providerMocks.createShippoShipment.mockReset().mockResolvedValue({
+    object_id: "ship_postpaid",
+    status: "WAITING",
+  });
   providerMocks.upsertOrder.mockReset().mockResolvedValue(undefined);
   providerMocks.signedUrl
     .mockReset()
@@ -591,6 +615,10 @@ describe("Stripe webhook and digital delivery contracts", () => {
   let server: Server;
   let baseUrl: string;
   beforeAll(async () => {
+    providerMocks.createShippoShipment.mockResolvedValue({
+      object_id: "ship_postpaid",
+      status: "WAITING",
+    });
     const app = express();
     registerStripeRoutes(app);
     registerDigitalDeliveryRoutes(app);
@@ -672,6 +700,32 @@ describe("Stripe webhook and digital delivery contracts", () => {
     });
     expect(providerMocks.upsertOrder).toHaveBeenCalledOnce();
     expect(tagAdds(api.requests)).toHaveLength(1);
+  });
+
+  it("creates a Shippo shipment for a paid physical order without buying a label", async () => {
+    mockKit();
+    const response = await webhook(paidSession("ghfp-paperback"));
+    expect(response.status).toBe(200);
+    expect(providerMocks.createShippoShipment).toHaveBeenCalledWith(
+      [{ id: "ghfp-paperback", qty: 1 }],
+      expect.objectContaining({
+        name: "Buyer Example",
+        street1: "123 Main Street",
+        city: "Atlanta",
+        state: "GA",
+        zip: "30303",
+      }),
+      `Mekiel Mitchell order ${SESSION_ID}`,
+    );
+    expect(providerMocks.upsertOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ shippoShipmentId: "ship_postpaid" }),
+    );
+  });
+
+  it("does not call Shippo for a digital-only paid order", async () => {
+    mockKit();
+    await webhook(paidSession("ghfp-ebook"));
+    expect(providerMocks.createShippoShipment).not.toHaveBeenCalled();
   });
 
   it("does not fulfill or tag unpaid checkout completions or unrelated events", async () => {

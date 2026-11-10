@@ -179,6 +179,35 @@ type ShippoShipment = {
   messages?: Array<{ text?: string }>;
 };
 
+export async function createShippoShipment(
+  itemsInput: unknown,
+  addressInput: unknown,
+  metadata: string,
+) {
+  const items = normalizeCheckoutItems(itemsInput);
+  const physicalItems = items.filter(item => item.product.category !== "digital");
+  if (physicalItems.length === 0) return null;
+  const addressTo = normalizeShippingAddress(addressInput);
+  const config = shippingConfiguration(physicalItems);
+  if (config.missing.length) {
+    throw new Error(`Shippo shipment creation needs configuration: ${config.missing.join(", ")}.`);
+  }
+  const shipment = await shippoRequest<ShippoShipment>("/shipments/", {
+    method: "POST",
+    body: JSON.stringify({
+      address_from: config.origin,
+      address_to: { ...addressTo, validate: true },
+      parcels: config.parcels,
+      async: false,
+      metadata: metadata.slice(0, 500),
+    }),
+  });
+  if (shipment.status === "ERROR") {
+    throw new Error(shipment.messages?.map(message => message.text).filter(Boolean).join(" ") || "Shippo rejected the shipment details.");
+  }
+  return shipment;
+}
+
 export async function createShippingQuotes(itemsInput: unknown, addressInput: unknown) {
   const items = normalizeCheckoutItems(itemsInput);
   const physicalItems = items.filter(item => item.product.category !== "digital");

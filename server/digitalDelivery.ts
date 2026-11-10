@@ -8,7 +8,7 @@ import {
 import {
   buildPurchaseDownloadsUrl,
   logPurchaseDeliveryFailure,
-  sendPurchaseDeliveryEmail,
+  syncKitPurchaseDelivery,
 } from "./kitPurchaseDelivery";
 import { storageGetSignedUrl } from "./storage";
 
@@ -28,21 +28,49 @@ function escapeHtml(value: string) {
     character =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
         character
-      ] || character,
+      ] || character
   );
 }
 
+class PublicDownloadError extends Error {
+  constructor(
+    readonly status: number,
+    message: string
+  ) {
+    super(message);
+  }
+}
+
+function publicDownloadError(error: unknown) {
+  return error instanceof PublicDownloadError
+    ? { status: error.status, message: error.message }
+    : {
+        status: 502,
+        message:
+          "Unable to verify this purchase or prepare downloads. Please try again.",
+      };
+}
+
 async function getPaidSession(sessionId: string) {
-  if (!isSessionId(sessionId)) throw new Error("A valid Stripe Checkout Session is required.");
+  if (!isSessionId(sessionId))
+    throw new PublicDownloadError(
+      400,
+      "A valid Stripe Checkout Session is required."
+    );
   const session = await stripeClient().checkout.sessions.retrieve(sessionId);
-  if (session.payment_status !== "paid") throw new Error("Downloads become available after payment is confirmed.");
+  if (session.payment_status !== "paid")
+    throw new PublicDownloadError(
+      403,
+      "Downloads become available after payment is confirmed."
+    );
   return session;
 }
 
 export function registerDigitalDeliveryRoutes(app: Express) {
   app.get("/api/digital/delivery", async (req, res) => {
     try {
-      const sessionId = typeof req.query.session_id === "string" ? req.query.session_id : "";
+      const sessionId =
+        typeof req.query.session_id === "string" ? req.query.session_id : "";
       const session = await getPaidSession(sessionId);
 
       const productIds = (session.metadata?.product_ids || "")
@@ -55,46 +83,58 @@ export function registerDigitalDeliveryRoutes(app: Express) {
           label: asset.label,
           filename: asset.filename,
           url: await storageGetSignedUrl(asset.key),
-        })),
+        }))
       );
 
-      let emailDelivery = false;
+      let kitHandoffAccepted = false;
       try {
-        const result = await sendPurchaseDeliveryEmail(session);
-        logPurchaseDeliveryFailure(session.id, result);
-        emailDelivery = result.ok;
+        // Webhook is primary. Refreshes/backfills repair fields only and must
+        // not apply tags, add forms, or attempt to retrigger an automation.
+        const result = await syncKitPurchaseDelivery(session, {
+          applyPurchaseTags: false,
+        });
+        logPurchaseDeliveryFailure(result);
+        kitHandoffAccepted = result.ok;
       } catch (error) {
         console.warn(
-          `[Kit] Purchase delivery failed for ${session.id}:`,
-          error instanceof Error ? error.message : error,
+          "[Kit] Field-only purchase handoff was not accepted:",
+          error instanceof Error ? error.message : "unknown error"
         );
       }
 
-      return res.json({ downloads, emailDelivery });
+      res.set("Cache-Control", "no-store");
+      return res.json({ downloads, kitHandoffAccepted });
     } catch (error) {
-      console.error("[Digital delivery] Unable to create download links", error instanceof Error ? error.message : error);
-      const message = error instanceof Error ? error.message : "Unable to verify this purchase.";
-      const status = message.includes("payment is confirmed") ? 403 : 400;
+      console.error(
+        "[Digital delivery] Unable to create download links",
+        error instanceof Error ? error.message : error
+      );
+      const { status, message } = publicDownloadError(error);
       return res.status(status).json({ error: message });
     }
   });
 
   app.get("/api/digital/downloads", async (req, res) => {
     try {
-      const sessionId = typeof req.query.session_id === "string" ? req.query.session_id : "";
+      const sessionId =
+        typeof req.query.session_id === "string" ? req.query.session_id : "";
       const session = await getPaidSession(sessionId);
       const productIds = (session.metadata?.product_ids || "")
         .split(",")
         .map(value => value.trim())
         .filter(Boolean);
       const assets = digitalAssetsForProducts(productIds);
-      if (!assets.length) return res.status(404).send("This order contains no digital products.");
+      if (!assets.length)
+        return res.status(404).send("This order contains no digital products.");
 
       const links = assets
         .map(asset => {
           const code = downloadCodeForAsset(asset.key);
           if (!code) return "";
-          const url = new URL("/api/digital/download", buildPurchaseDownloadsUrl(session.id));
+          const url = new URL(
+            "/api/digital/download",
+            buildPurchaseDownloadsUrl(session.id)
+          );
           url.search = "";
           url.searchParams.set("session_id", session.id);
           url.searchParams.set("asset", code);
@@ -103,6 +143,7 @@ export function registerDigitalDeliveryRoutes(app: Express) {
         .filter(Boolean)
         .join("");
 
+      res.set("Cache-Control", "no-store");
       res.type("html").send(`<!doctype html>
 <html lang="en">
   <head>
@@ -125,15 +166,15 @@ export function registerDigitalDeliveryRoutes(app: Express) {
   </main></body>
 </html>`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to prepare your downloads.";
-      const status = message.includes("payment is confirmed") ? 403 : 400;
+      const { status, message } = publicDownloadError(error);
       return res.status(status).send(message);
     }
   });
 
   app.get("/api/digital/download", async (req, res) => {
     try {
-      const sessionId = typeof req.query.session_id === "string" ? req.query.session_id : "";
+      const sessionId =
+        typeof req.query.session_id === "string" ? req.query.session_id : "";
       const code = typeof req.query.asset === "string" ? req.query.asset : "";
       const session = await getPaidSession(sessionId);
       const productIds = (session.metadata?.product_ids || "")
@@ -141,11 +182,12 @@ export function registerDigitalDeliveryRoutes(app: Express) {
         .map(value => value.trim())
         .filter(Boolean);
       const asset = digitalAssetForDownloadCode(productIds, code);
-      if (!asset) return res.status(404).send("That download is not part of this order.");
+      if (!asset)
+        return res.status(404).send("That download is not part of this order.");
+      res.set("Cache-Control", "no-store");
       return res.redirect(307, await storageGetSignedUrl(asset.key));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to prepare your download.";
-      const status = message.includes("payment is confirmed") ? 403 : 400;
+      const { status, message } = publicDownloadError(error);
       return res.status(status).send(message);
     }
   });

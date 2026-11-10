@@ -3079,10 +3079,10 @@
       container.innerHTML = payload.downloads.map(download => `<a href="${download.url}" download="${download.filename}">${download.label} →</a>`).join('');
       if (!payload.downloads.length) {
         status.textContent = 'This order contains no digital products.';
-      } else if (payload.emailDelivery) {
-        status.textContent = 'Your secure download links are ready. A copy was also sent to your checkout email.';
+      } else if (payload.kitHandoffAccepted) {
+        status.textContent = 'Your secure download links are ready. Kit accepted your purchase details; this does not confirm an email was sent.';
       } else {
-        status.textContent = 'Your secure download links are ready. Save these links while email delivery is being configured.';
+        status.textContent = 'Your secure download links are ready. Save these links; the Kit handoff is not confirmed yet.';
       }
     } catch (error) {
       status.textContent = error instanceof Error ? error.message : 'Unable to prepare downloads.';

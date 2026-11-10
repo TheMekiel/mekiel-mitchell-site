@@ -1,33 +1,44 @@
 import type Stripe from "stripe";
 import { digitalAssetsForProducts } from "./digitalProducts";
+import { STRIPE_PRODUCTS } from "./stripeProducts";
 
 const KIT_API_BASE_URL = "https://api.kit.com/v4";
-const DEFAULT_PURCHASE_FORM_ID = 9849297;
-const DEFAULT_DOWNLOADS_FIELD_KEY = "purchase_downloads_url";
-const PUBLIC_SITE_ORIGIN = (process.env.PUBLIC_SITE_ORIGIN || "https://themekielmitchell.com").replace(
-  /\/+$/,
-  "",
-);
+const PUBLIC_SITE_ORIGIN = (
+  process.env.PUBLIC_SITE_ORIGIN || "https://themekielmitchell.com"
+).replace(/\/+$/, "");
+
+export const PURCHASE_TAGS = {
+  digital: "Purchased – Digital",
+  physical: "Purchased – Physical",
+  ebook: "Purchased – GHFP eBook",
+} as const;
 
 type KitResponse = Record<string, unknown>;
+type KitSubscriber = {
+  id: number;
+  first_name: string | null;
+  email_address: string;
+};
+type KitTag = { id: number; name: string };
+
+export type KitPurchaseDeliveryOptions = {
+  /** Field-only repair/backfill. Never lists, creates, removes, or applies tags. */
+  applyPurchaseTags?: boolean;
+};
 
 export type KitPurchaseDeliveryResult =
-  | { ok: true; email: string; formId: number; downloadUrl: string }
+  | {
+      ok: true;
+      status: "queued" | "fields_updated";
+      email: string;
+      subscriberId: number;
+      downloadUrl: string | null;
+      tagsApplied: string[];
+    }
   | { ok: false; reason: string };
-
-let purchaseFieldPromise: Promise<string> | null = null;
 
 function getKitApiKey() {
   return process.env.KIT_V4_API_KEY || process.env.KIT_API_KEY || "";
-}
-
-function getPurchaseFormId() {
-  const configured = Number.parseInt(process.env.KIT_PURCHASE_FORM_ID || "", 10);
-  return Number.isInteger(configured) && configured > 0 ? configured : DEFAULT_PURCHASE_FORM_ID;
-}
-
-function getPurchaseFieldKeyOverride() {
-  return process.env.KIT_PURCHASE_DOWNLOADS_FIELD_KEY?.trim() || "";
 }
 
 function sessionProductIds(session: Stripe.Checkout.Session) {
@@ -52,89 +63,221 @@ export function buildPurchaseDownloadsUrl(sessionId: string) {
   return url.toString();
 }
 
-async function kitRequest(path: string, init: RequestInit = {}) {
+async function kitRequest(
+  path: string,
+  init: RequestInit = {}
+): Promise<KitResponse> {
   const apiKey = getKitApiKey();
-  if (!apiKey) throw new Error("KIT_API_KEY is not configured.");
+  if (!apiKey) throw new Error("Kit purchase handoff is not configured.");
 
-  const response = await fetch(`${KIT_API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Kit-Api-Key": apiKey,
-      ...(init.headers || {}),
-    },
-  });
-  const bodyText = await response.text();
-  let body: KitResponse = {};
-  if (bodyText) {
-    try {
-      body = JSON.parse(bodyText) as KitResponse;
-    } catch {
-      body = { raw: bodyText };
-    }
+  let response: Response;
+  try {
+    response = await fetch(`${KIT_API_BASE_URL}${path}`, {
+      ...init,
+      signal: AbortSignal.timeout(15_000),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Kit-Api-Key": apiKey,
+        ...(init.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error("Kit purchase handoff is temporarily unavailable.");
   }
-  if (!response.ok) {
-    const errors = Array.isArray(body.errors) ? body.errors.join(", ") : bodyText || response.statusText;
-    throw new Error(`Kit request failed (${response.status}): ${errors}`);
+  // Never propagate provider response text, customer data, or secret URLs.
+  if (!response.ok)
+    throw new Error(`Kit purchase handoff failed (HTTP ${response.status}).`);
+  try {
+    const body: unknown = await response.json();
+    if (!body || typeof body !== "object" || Array.isArray(body))
+      throw new Error();
+    return body as KitResponse;
+  } catch {
+    throw new Error("Kit returned an invalid purchase handoff response.");
   }
-  return body;
 }
 
-async function getPurchaseDownloadsFieldKey() {
-  const override = getPurchaseFieldKeyOverride();
-  if (override) return override;
-  if (!purchaseFieldPromise) {
-    purchaseFieldPromise = kitRequest("/custom_fields", {
+async function listKitRecords<T>(path: string, key: string): Promise<T[]> {
+  const records: T[] = [];
+  const cursors = new Set<string>();
+  let after = "";
+  do {
+    const url = new URL(`${KIT_API_BASE_URL}${path}`);
+    if (after) url.searchParams.set("after", after);
+    const payload = await kitRequest(
+      `${url.pathname.replace("/v4", "")}${url.search}`
+    );
+    const pagination = payload.pagination as
+      | { has_next_page?: boolean; end_cursor?: string }
+      | undefined;
+    if (
+      !Array.isArray(payload[key]) ||
+      typeof pagination?.has_next_page !== "boolean"
+    ) {
+      throw new Error("Kit returned an invalid list response.");
+    }
+    records.push(...(payload[key] as T[]));
+    if (!pagination.has_next_page) break;
+    if (!pagination.end_cursor || cursors.has(pagination.end_cursor)) {
+      throw new Error("Kit returned an invalid pagination cursor.");
+    }
+    after = pagination.end_cursor;
+    cursors.add(after);
+  } while (after);
+  return records;
+}
+
+function requireSubscriber(payload: KitResponse): KitSubscriber {
+  const subscriber = payload.subscriber as KitSubscriber | undefined;
+  if (
+    !subscriber ||
+    !Number.isInteger(subscriber.id) ||
+    subscriber.id <= 0 ||
+    typeof subscriber.email_address !== "string" ||
+    (subscriber.first_name !== null &&
+      typeof subscriber.first_name !== "string")
+  ) {
+    throw new Error("Kit did not return a valid subscriber.");
+  }
+  return subscriber;
+}
+
+async function findOrCreateSubscriber(email: string): Promise<KitSubscriber> {
+  // The documented lookup defaults to active; status=all also finds opted-out
+  // and suppressed subscribers. Do not reactivate them or overwrite their name.
+  const query = new URLSearchParams({ email_address: email, status: "all" });
+  const subscribers = await listKitRecords<KitSubscriber>(
+    `/subscribers?${query}`,
+    "subscribers"
+  );
+  const existing = subscribers.find(
+    subscriber =>
+      subscriber.email_address?.toLowerCase() === email.toLowerCase()
+  );
+  if (existing) return requireSubscriber({ subscriber: existing });
+
+  // Omit first_name even on creation: list results are eventually consistent,
+  // so this upsert might find an existing subscriber whose name must survive.
+  // State is never supplied; Kit's upsert cannot update an existing state.
+  return requireSubscriber(
+    await kitRequest("/subscribers", {
       method: "POST",
-      body: JSON.stringify({ label: "Purchase Downloads URL" }),
-    }).then(payload => {
-      const field = payload.custom_field as { key?: string } | undefined;
-      if (!field?.key) throw new Error("Kit did not return the purchase-download custom-field key.");
-      return field.key;
+      body: JSON.stringify({ email_address: email }),
+    })
+  );
+}
+
+async function applyTags(subscriberId: number, names: string[]) {
+  const tags = await listKitRecords<KitTag>("/tags", "tags");
+  for (const name of names) {
+    let tag = tags.find(candidate => candidate.name === name);
+    if (!tag) {
+      const payload = await kitRequest("/tags", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      });
+      tag = payload.tag as KitTag | undefined;
+    }
+    // Exact labels matter, including spaces around the en dash. Kit creation
+    // is name-idempotent, including concurrent creates; never rename a tag.
+    if (!tag || tag.name !== name || !Number.isInteger(tag.id) || tag.id <= 0) {
+      throw new Error("Kit did not return the exact purchase tag.");
+    }
+    // Add on every paid order/retry (200 for already tagged). Never remove and
+    // re-add: that can duplicate automation entry and unrelated side effects.
+    await kitRequest(`/tags/${tag.id}/subscribers/${subscriberId}`, {
+      method: "POST",
+      body: JSON.stringify({}),
     });
   }
-  return purchaseFieldPromise;
 }
 
-export async function sendPurchaseDeliveryEmail(
+/** Kit API acceptance is not proof that an automation entered or an email sent. */
+export async function syncKitPurchaseDelivery(
   session: Stripe.Checkout.Session,
+  { applyPurchaseTags = true }: KitPurchaseDeliveryOptions = {}
 ): Promise<KitPurchaseDeliveryResult> {
+  // Defense in depth: callers, including backfills, cannot bypass payment.
+  if (session.payment_status !== "paid")
+    return { ok: false, reason: "Payment is not confirmed." };
+
   const productIds = sessionProductIds(session);
-  if (!digitalAssetsForProducts(productIds).length) return { ok: false, reason: "No digital products in session." };
-
+  if (
+    !productIds.length ||
+    productIds.some(id => !Object.hasOwn(STRIPE_PRODUCTS, id))
+  ) {
+    return {
+      ok: false,
+      reason: "Stripe did not provide recognized order products.",
+    };
+  }
   const email = getCustomerEmail(session).trim();
-  if (!email) return { ok: false, reason: "Stripe did not provide a customer email." };
+  if (!email)
+    return { ok: false, reason: "Stripe did not provide a customer email." };
+  if (!getKitApiKey())
+    return { ok: false, reason: "Kit purchase handoff is not configured." };
 
-  const apiKey = getKitApiKey();
-  if (!apiKey) return { ok: false, reason: "KIT_API_KEY is not configured." };
-
-  const downloadUrl = buildPurchaseDownloadsUrl(session.id);
-  const fieldKey = await getPurchaseDownloadsFieldKey();
-  const formId = getPurchaseFormId();
-
-  await kitRequest("/subscribers", {
-    method: "POST",
+  const hasDigital = productIds.some(
+    id => STRIPE_PRODUCTS[id].category === "digital"
+  );
+  const hasPhysical = productIds.some(
+    id => STRIPE_PRODUCTS[id].category !== "digital"
+  );
+  const hasEbook =
+    productIds.includes("ghfp-ebook") || productIds.includes("ghfp-bundle");
+  const downloadUrl = digitalAssetsForProducts(productIds).length
+    ? buildPurchaseDownloadsUrl(session.id)
+    : null;
+  const shippingCarrier = hasPhysical
+    ? [
+        session.metadata?.shipping_provider?.trim(),
+        session.metadata?.shipping_service?.trim(),
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+  const subscriber = await findOrCreateSubscriber(email);
+  const firstName = subscriber.first_name?.trim()
+    ? undefined
+    : getFirstName(session);
+  const updated = await kitRequest(`/subscribers/${subscriber.id}`, {
+    method: "PUT",
     body: JSON.stringify({
-      email_address: email,
-      first_name: getFirstName(session),
-      state: "active",
-      fields: { [fieldKey]: downloadUrl },
+      email_address: subscriber.email_address,
+      ...(firstName ? { first_name: firstName } : {}),
+      fields: {
+        order_link: downloadUrl || "",
+        shipping_carrier: shippingCarrier,
+      },
     }),
   });
+  // Some Kit responses ignore unknown field keys with warnings. Do not tag a
+  // subscriber until the existing fields were accepted; never create fields.
+  if (Array.isArray(updated.warnings) && updated.warnings.length) {
+    throw new Error("Kit did not accept the existing purchase fields.");
+  }
+  requireSubscriber(updated);
 
-  await kitRequest(`/forms/${formId}/subscribers`, {
-    method: "POST",
-    body: JSON.stringify({
-      email_address: email,
-      referrer: `${PUBLIC_SITE_ORIGIN}/?checkout=success`,
-    }),
-  });
+  const tagsApplied = applyPurchaseTags
+    ? [
+        hasDigital ? PURCHASE_TAGS.digital : "",
+        hasPhysical ? PURCHASE_TAGS.physical : "",
+        hasEbook ? PURCHASE_TAGS.ebook : "",
+      ].filter(Boolean)
+    : [];
+  if (applyPurchaseTags) await applyTags(subscriber.id, tagsApplied);
 
-  return { ok: true, email, formId, downloadUrl };
+  return {
+    ok: true,
+    status: applyPurchaseTags ? "queued" : "fields_updated",
+    email,
+    subscriberId: subscriber.id,
+    downloadUrl,
+    tagsApplied,
+  };
 }
 
-export function logPurchaseDeliveryFailure(sessionId: string, result: KitPurchaseDeliveryResult) {
-  if (!result.ok) {
-    console.warn(`[Kit] Purchase delivery was not sent for ${sessionId}: ${result.reason}`);
-  }
+export function logPurchaseDeliveryFailure(result: KitPurchaseDeliveryResult) {
+  if (!result.ok)
+    console.warn(`[Kit] Purchase handoff was not accepted: ${result.reason}`);
 }

@@ -28,3 +28,9 @@ The earlier handoff implementation made no live Kit subscriber/tag/form/email ch
 - [x] Add temporary redacted Kit endpoint/status/error-shape diagnostics without logging API keys, then remove them after the resend succeeded.
 - [x] Run the focused handoff tests, TypeScript check, deterministic test suite, and production build.
 - [x] Save the repair checkpoint; do not resend the Stripe event from the application.
+
+# Post-delivery follow-up
+
+- [x] Archive temporary live-checkout, Stripe, Shippo, and webhook verification notes under `project-files/archive/repair-notes-2026-11-10/`.
+- [x] Confirm the current Stripe-to-Shippo gap: checkout stores the Shippo rate/shipment IDs, but the paid webhook does not create a Shippo transaction or pass the Stripe shipping address into Shippo.
+- [ ] Add automatic Shippo transaction creation after a paid physical order, pending user approval of the fulfillment behavior.

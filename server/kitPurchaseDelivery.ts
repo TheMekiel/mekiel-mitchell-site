@@ -90,28 +90,8 @@ async function kitRequest(
   } catch {
     throw new Error("Kit purchase handoff is temporarily unavailable.");
   }
-  if (!response.ok) {
-    let diagnostic = "";
-    try {
-      const body = (await response.clone().json()) as {
-        errors?: unknown;
-        warnings?: unknown;
-      };
-      diagnostic = JSON.stringify({
-        errors: Array.isArray(body.errors) ? body.errors : undefined,
-        warnings: Array.isArray(body.warnings) ? body.warnings : undefined,
-      });
-    } catch {
-      diagnostic = "non-json response";
-    }
-    console.warn("[Kit] API request failed", {
-      method: init.method || "GET",
-      path,
-      status: response.status,
-      body: diagnostic,
-    });
+  if (!response.ok)
     throw new Error(`Kit purchase handoff failed (HTTP ${response.status}).`);
-  }
   try {
     const body: unknown = await response.json();
     if (!body || typeof body !== "object" || Array.isArray(body))

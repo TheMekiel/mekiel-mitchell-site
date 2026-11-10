@@ -25,6 +25,6 @@ The earlier handoff implementation made no live Kit subscriber/tag/form/email ch
 
 - [x] Confirm the Stripe signature was accepted and the three failed deliveries returned the app's sanitized HTTP 503.
 - [x] Replace fragile live tag name lookup/create behavior with the verified Kit tag IDs; preserve the existing `order_link` and `shipping_carrier` field payload.
-- [x] Add redacted Kit endpoint/status/error-shape diagnostics without logging API keys.
+- [x] Add temporary redacted Kit endpoint/status/error-shape diagnostics without logging API keys, then remove them after the resend succeeded.
 - [x] Run the focused handoff tests, TypeScript check, deterministic test suite, and production build.
 - [x] Save the repair checkpoint; do not resend the Stripe event from the application.

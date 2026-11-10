@@ -525,26 +525,6 @@ describe("Kit paid-order handoff", () => {
     ).toBe(false);
   });
 
-  it("logs Kit failure diagnostics without logging the API key", async () => {
-    mockKit({
-      respond: request =>
-        request.method === "PUT"
-          ? json({ errors: ["field update failed"] }, 422)
-          : undefined,
-    });
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await expect(syncKitPurchaseDelivery(paidSession())).rejects.toThrow(
-      "Kit purchase handoff failed (HTTP 422)."
-    );
-    expect(warn).toHaveBeenCalledWith("[Kit] API request failed", {
-      method: "PUT",
-      path: "/subscribers/42",
-      status: 422,
-      body: JSON.stringify({ errors: ["field update failed"] }),
-    });
-    expect(JSON.stringify(warn.mock.calls)).not.toContain("mock-kit-key");
-  });
-
   it("does not tag when existing fields are ignored with API warnings", async () => {
     const api = mockKit({
       respond: request =>

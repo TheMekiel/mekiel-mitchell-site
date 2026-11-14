@@ -4,6 +4,7 @@ import { normalizeCheckoutItems } from "./stripeProducts";
 import { createShippoShipment, verifyShippingQuote } from "./shippo";
 import { getCommerceOrderBySessionId, upsertCommerceOrder } from "./db";
 import { syncKitPurchaseDelivery } from "./kitPurchaseDelivery";
+import { sendPaidPhysicalOrderNotification } from "./orderEmail";
 
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -74,7 +75,8 @@ export function registerStripeRoutes(app: Express) {
                 .filter(Boolean)
                 .map(id => ({ id, qty: 1 }))) as unknown;
           const existingOrder = await getCommerceOrderBySessionId(session.id);
-          const hasPhysicalItems = normalizeCheckoutItems(productInput).some(
+          const items = normalizeCheckoutItems(productInput);
+          const hasPhysicalItems = items.some(
             item => item.product.category !== "digital"
           );
           let shippoShipmentId = existingOrder?.shippoShipmentId ?? null;
@@ -123,6 +125,13 @@ export function registerStripeRoutes(app: Express) {
             status: deliveryResult.status,
             tagsApplied: deliveryResult.tagsApplied,
           });
+          if (hasPhysicalItems) {
+            await sendPaidPhysicalOrderNotification({
+              session,
+              items,
+              shippoShipmentId,
+            });
+          }
         } catch (error) {
           console.error(
             "[Stripe] Paid-order handoff failed; requesting webhook retry",

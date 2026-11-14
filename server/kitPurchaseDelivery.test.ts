@@ -25,6 +25,7 @@ const providerMocks = vi.hoisted(() => ({
   retrieveSession: vi.fn(),
   createSession: vi.fn(),
   createShippoShipment: vi.fn(),
+  sendPaidPhysicalOrderNotification: vi.fn(),
   upsertOrder: vi.fn(),
   signedUrl: vi.fn(),
 }));
@@ -47,6 +48,9 @@ vi.mock("./storage", () => ({ storageGetSignedUrl: providerMocks.signedUrl }));
 vi.mock("./shippo", () => ({
   createShippoShipment: providerMocks.createShippoShipment,
   verifyShippingQuote: vi.fn(),
+}));
+vi.mock("./orderEmail", () => ({
+  sendPaidPhysicalOrderNotification: providerMocks.sendPaidPhysicalOrderNotification,
 }));
 
 const nativeFetch = globalThis.fetch;
@@ -201,6 +205,9 @@ beforeEach(() => {
     object_id: "ship_postpaid",
     status: "WAITING",
   });
+  providerMocks.sendPaidPhysicalOrderNotification
+    .mockReset()
+    .mockResolvedValue(true);
   providerMocks.upsertOrder.mockReset().mockResolvedValue(undefined);
   providerMocks.signedUrl
     .mockReset()
